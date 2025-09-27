@@ -8,6 +8,6 @@ export class SignUpDto {
   @IsString()
   password: string;
 
-  @IsEnum(UserRoles)
-  roles: UserRoles
+  @IsEnum([UserRoles])
+  roles: UserRoles[]
 }

@@ -88,11 +88,11 @@ export class AuthController {
     );
   }
 
-  @Post('2fa/setup')
+  @Get('2fa/setup')
   async setup2fa(@Req() request: Request) {
     const user = request.session.user;
     if (!user) {
-      throw new AuthError("Unauthorized action", HttpStatus.FORBIDDEN)
+      throw new AuthError('Unauthorized action', HttpStatus.FORBIDDEN);
     }
     const { id } = user;
     const data = await this.speakeasyService.setupTwoFactor(id as string);
@@ -141,16 +141,14 @@ export class AuthController {
 
   @Post('2fa/verify')
   async verify2fa(@Req() request: Request, @Body('token') token: string) {
-    const user = request.cookies['sessionToken'];
-    const userData = await this.authService.decrypt(user);
-    if (!userData) return;
-    const { id } = userData.payload;
-    console.log(`Verifying token for user ${id}`);
-    const valid = await this.speakeasyService.verifyToken(id as string, token);
-    if (valid) await this.speakeasyService.update2faStatus(id as string);
+    const user = request.session.user;
+    const userId = user?.id;
+    const valid = await this.speakeasyService.verifyToken(
+      userId as string,
+      token,
+    );
     return { success: valid };
   }
-
 
   @Post('verify-email')
   async verifyEmail(
@@ -160,11 +158,18 @@ export class AuthController {
     if (!id || !token || !type)
       throw new BadRequestException('Incomplete credentials');
     this.logger.log(`Verifying email for ${id}`);
-    return await this.authService.verifyEmail(id, token, type);
+    const formattedType = type.toUpperCase() as VerificationType;
+    return await this.authService.verifyEmail(id, token, formattedType);
+  }
+
+  @Get('profile')
+  Profile(@Req() request: Request){
+    const user = request.session.user
+    return user
   }
 
   @Get('logout')
-  logout(@Res({ passthrough: true }) response: Response) {
-    return this.authService.logout(response);
+  logout(@Res({ passthrough: true }) response: Response, @Req() request: Request) {
+    return this.authService.logout(request, response);
   }
 }

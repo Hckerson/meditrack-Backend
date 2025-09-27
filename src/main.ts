@@ -8,10 +8,20 @@ import { ConsoleLogger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const InitializeClients = async () => {
-  const redisClient = createClient();
-  redisClient.on('error', (err) => {
-    throw new Error('Error initilizing redis client');
+  const username = process.env.REDIS_USERNAME;
+  const password = process.env.REDIS_PASSWORD;
+  const host = process.env.REDIS_HOST;
+  const port = process.env.REDIS_PORT;
+
+  const redisClient = createClient({
+    url: `redis://${username}:${password}@${host}:${port}`,
   });
+
+  redisClient.on('error', (err) => {
+    console.error('Redis Client Error:', err);
+  });
+
+  await redisClient.connect();
   const store: RedisStore = new RedisStore({
     client: redisClient,
     prefix: 'Authify',
@@ -47,6 +57,7 @@ async function bootstrap() {
     session({
       secret: process.env.COOKIE_SECRET || '',
       resave: false,
+      store: redisStore,
       saveUninitialized: false,
       cookie: {
         secure: process.env.NODE_ENV === 'production',

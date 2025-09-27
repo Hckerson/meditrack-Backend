@@ -10,7 +10,13 @@ import { SignJWT, jwtVerify, JWTPayload } from 'jose';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ResetPasswordDto } from './dto/reset-password-dto';
 import { EmailSend, MailOpts } from 'src/lib/services/email/email-send';
-import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  HttpException,
+  HttpStatus,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { AuthError } from './errors/auth-error';
 import { error } from 'node:console';
 
@@ -87,12 +93,14 @@ export class AuthService {
 
       this.logger.log(`Creating new user in database`);
       const hashedPassword = await bcrypt.hash(password, 10);
+      console.log('Creating user with data', signUpDto);
       const newUser = await this.prisma.user.create({
         data: {
           email: email.toLowerCase(),
           password: hashedPassword,
           provider: 'local',
           username: email.split('@')[0],
+          roles,
         },
       });
 
@@ -126,7 +134,7 @@ export class AuthService {
       this.triggerEmailSending(
         {
           to: email,
-          verificationLink
+          verificationLink,
         },
         EmailType.VERIFY_EMAIL,
       );
@@ -179,7 +187,7 @@ export class AuthService {
       fingerprint,
     };
 
-    console.log(request.session.user)
+    console.log(request.session.user);
     request.session.cookie.maxAge = sessionTTL;
 
     // send login-alert email
@@ -298,13 +306,21 @@ export class AuthService {
 
   /**
    * Clear user session to logout user
-   * @param response -Express response object to clear cookie
+   * @param response -Express request object to clear cookie
    * @returns -Returns a success message
    */
-  async logout(response: Response) {
-    response.clearCookie('rememberMe');
-    response.clearCookie('session');
-    return { message: 'Logout successful' };
+  async logout(request: Request, response: Response) {
+    return new Promise((resolve, reject) => {
+      request.session.destroy((err) => {
+        if (err) {
+          console.error(`Error logging user out`, err);
+          reject(new InternalServerErrorException('Failed to logout'));
+          return;
+        }
+        response.clearCookie('connect.sid');
+        resolve({ message: 'Logout successful' });
+      });
+    });
   }
 
   /**
@@ -315,7 +331,6 @@ export class AuthService {
    */
   async verifyEmail(userId: string, token: string, type: VerificationType) {
     const CURRENT_TIME = new Date(Date.now());
-
     // find verification code in the database
     let verificatiionCode: Pick<VerificationCodes, 'code' | 'expiresAt'> | null;
     try {
@@ -333,9 +348,9 @@ export class AuthService {
         },
       });
     } catch (error) {
-      this.logger.error('Error looking up verification code');
+      this.logger.error('Error looking up verification code', error);
       throw new AuthError(
-        'Internal serve error',
+        'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -403,7 +418,7 @@ export class AuthService {
     const response = await this.email.initializeEmailSender(
       {
         to: email,
-        resetLink
+        resetLink,
       },
       EmailType.RESET_PASSWORD,
     );
@@ -436,8 +451,12 @@ export class AuthService {
    * @param resetPasswordDto -Data transfer object containing email, password and token
    * @returns -Object containing message and status
    */
-  async resetPassword(token: string, type: VerificationType, password: string, request: Request) {
-    
+  async resetPassword(
+    token: string,
+    type: VerificationType,
+    password: string,
+    request: Request,
+  ) {
     // veify token
     let verificatiionCode: Pick<
       VerificationCodes,
@@ -447,7 +466,7 @@ export class AuthService {
       verificatiionCode = await this.prisma.verificationCodes.findUnique({
         where: {
           code: token,
-          type
+          type,
         },
         select: {
           expiresAt: true,
@@ -471,7 +490,7 @@ export class AuthService {
     }
 
     // get userId from session
-    const session = request.session.user ;
+    const session = request.session.user;
     const userId = session?.id;
     // reset password
     const hashedPassword = await bcrypt.hash(password, 10);

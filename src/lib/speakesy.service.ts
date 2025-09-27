@@ -17,13 +17,17 @@ export class SpeakeasyService {
   async setupTwoFactor(userId: string) {
     const secret = speakeasy.generateSecret();
     // Store the base32 secret in the user record
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { speakeasySecret: secret.base32 },
-    });
+    try {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { speakeasySecret: secret.base32 },
+      });
+    } catch (error) {
+      console.error('Error setting up two factor for user ', userId);
+    }
     // Return the URL for the authenticator app
-    const qrCode = await this.getQrCodeForUser(userId)
-    return {otpauthUrl:secret.otpauth_url!, qrCode};
+    const qrCode = await this.getQrCodeForUser(userId);
+    return { otpauthUrl: secret.otpauth_url!, qrCode };
   }
 
   /**
@@ -33,14 +37,14 @@ export class SpeakeasyService {
     // Retrieve the stored secret
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { speakeasySecret: true },
+      select: { speakeasySecret: true, email: true },
     });
     if (!user?.speakeasySecret) {
       throw new Error('2FA not set up for this user');
     }
     const otpauthUrl = speakeasy.otpauthURL({
       secret: user.speakeasySecret,
-      label: `MyApp (${userId})`,
+      label: `Authify (${user?.email})`,
       encoding: 'base32',
     });
     return this.qrcodeService.generateQrCode(otpauthUrl);
@@ -61,18 +65,8 @@ export class SpeakeasyService {
       secret: user.speakeasySecret,
       encoding: 'base32',
       token,
-      window: 2, // allow one-step clock drift
+      window: 1, // allow one-step clock drift
     });
   }
 
-  async update2faStatus(userId: string) {
-    // const user = await this.prisma.user.update({
-    //   where: {
-    //     id: userId,
-    //   },
-    //   data: {
-    //     twofaVerified: true,
-    //   },
-    // });
-  }
 }
