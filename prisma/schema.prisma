@@ -85,6 +85,10 @@ model AuditLogs {
   updatedAt DateTime @updatedAt()
 }
 
+model Hold {
+  id String @id @default(uuid())
+}
+
 model Billing {
   id            String        @id @default(uuid())
   createdAt     DateTime      @default(now())
