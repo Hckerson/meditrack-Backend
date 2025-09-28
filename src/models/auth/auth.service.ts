@@ -99,7 +99,7 @@ export class AuthService {
           password: hashedPassword,
           provider: 'local',
           fullname: fullName,
-          roles,
+          Role: roles,
         },
       });
 
@@ -168,9 +168,9 @@ export class AuthService {
     if (!result?.data?.isValid) {
       throw new AuthError('invalid credentials', HttpStatus.UNAUTHORIZED);
     }
-    const { id, roles } = result?.data as {
+    const { id, Role } = result?.data as {
       id: string;
-      roles: string[];
+      Role: string[];
     };
     // process login if user validation was successfull
 
@@ -182,7 +182,7 @@ export class AuthService {
 
     request.session.user = {
       id,
-      roles,
+      roles: Role,
       fingerprint,
     };
 
@@ -233,7 +233,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     // check for user in the database
     this.logger.log(`Finding user in database`);
-    let userInfo: Pick<User, 'password' | 'id' | 'roles'> | null;
+    let userInfo: Pick<User, 'password' | 'id' | 'Role'> | null;
     try {
       userInfo = await this.prisma.user.findUnique({
         where: {
@@ -242,7 +242,7 @@ export class AuthService {
         select: {
           password: true,
           id: true,
-          roles: true,
+          Role: true,
         },
       });
     } catch (error) {
@@ -256,7 +256,7 @@ export class AuthService {
       throw new AuthError('Invalid user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const { password: hashedPassword, id, roles } = userInfo;
+    const { password: hashedPassword, id, Role } = userInfo;
     // check if user is valid
     const isValid = await bcrypt.compare(password, hashedPassword);
     if (!isValid)
@@ -265,7 +265,7 @@ export class AuthService {
     return {
       success: true,
       message: 'User validated successfully',
-      data: { isValid, id, roles },
+      data: { isValid, id, Role },
     };
   }
 
@@ -335,7 +335,7 @@ export class AuthService {
     try {
       verificatiionCode = await this.prisma.verificationCodes.findUnique({
         where: {
-          user: {
+          User: {
             id: userId,
           },
           code: token,
@@ -373,7 +373,7 @@ export class AuthService {
     try {
       await this.prisma.verificationCodes.update({
         where: {
-          user: {
+          User: {
             id: userId,
           },
           code: token,
@@ -382,7 +382,7 @@ export class AuthService {
         data: {
           verifiedAt: new Date(Date.now()),
           codeUsed: true,
-          user: {
+          User: {
             update: {
               emailVerified: true,
             },

@@ -14,6 +14,7 @@ import { AdminModule } from './models/admin/admin.module';
 import sessionConfig from './config/session/configuration';
 import { DoctorModule } from './models/doctor/doctor.module';
 import { PatientModule } from './models/patient/patient.module';
+import { AppointmentModule } from './models/appointment/appointment.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PatientModule } from './models/patient/patient.module';
     NurseModule,
     PatientModule,
     AdminModule,
+    AppointmentModule,
   ],
   controllers: [AppController],
   providers: [
