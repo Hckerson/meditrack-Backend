@@ -1,5 +1,5 @@
-import { IsEnum, IsString} from "class-validator";
-import { UserRoles } from "../enums/user-role.enum";
+import { IsEnum, IsString } from 'class-validator';
+import { UserRoles } from '../enums/user-role.enum';
 
 export class SignUpDto {
   @IsString()
@@ -9,5 +9,8 @@ export class SignUpDto {
   password: string;
 
   @IsEnum([UserRoles])
-  roles: UserRoles[]
+  roles: UserRoles[];
+
+  @IsString()
+  fullName: string;
 }

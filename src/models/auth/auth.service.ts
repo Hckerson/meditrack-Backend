@@ -64,7 +64,7 @@ export class AuthService {
    * @returns
    */
   async signUp(signUpDto: SignUpDto) {
-    const { email, password, roles } = signUpDto;
+    const { email, password, roles, fullName } = signUpDto;
     if (!email || !password || !roles) {
       this.logger.error(`Email or password not provided`);
       throw new AuthError(
@@ -98,7 +98,7 @@ export class AuthService {
           email: email.toLowerCase(),
           password: hashedPassword,
           provider: 'local',
-          username: email.split('@')[0],
+          fullname: fullName,
           roles,
         },
       });

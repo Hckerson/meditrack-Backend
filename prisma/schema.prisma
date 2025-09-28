@@ -31,7 +31,7 @@ model User {
   password          String
   roles              Roles[]             @default([USER])
   speakeasySecret   String?
-  username          String              @default("")
+  fullname          String              @default("")
   provider          String              @default("")
   emailVerified     Boolean             @default(false)
   createdAt         DateTime            @default(now())
