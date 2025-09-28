@@ -8,7 +8,6 @@ import { AuthModule } from './models/auth/auth.module';
 import dbConfig from './config/database/configuration';
 import emailConfig from './config/email/configuration';
 import sessionConfig from './config/session/configuration';
-import { TekcifyModule } from './models/tekcify/tekcify.module';
 
 @Module({
   imports: [
@@ -25,8 +24,6 @@ import { TekcifyModule } from './models/tekcify/tekcify.module';
         },
       ],
     }),
-
-    TekcifyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

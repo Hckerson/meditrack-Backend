@@ -18,7 +18,6 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { AuthError } from './errors/auth-error';
-import { error } from 'node:console';
 
 @Injectable()
 export class AuthService {
