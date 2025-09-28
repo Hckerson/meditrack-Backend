@@ -18,7 +18,7 @@ export class AppointmentService {
       event.setMinutes(30)
      */
     try {
-      const booking = await this.prisma.$transaction(async (tx) => {
+      return await this.prisma.$transaction(async (tx) => {
         // check doctor availabiility for the chosen date
         const doctorAppointment = await this.prisma.doctor.count({
           where: {
@@ -37,8 +37,13 @@ export class AppointmentService {
         }
 
         // if not reserved create a hold on it
+        try {
+          
+        } catch (error) {
+          console.error(`Error setting hold on reserved date`)
+        }
 
-        
+
       });
     } catch (error) {
       console.error('Error booking appointment', error);

@@ -86,7 +86,12 @@ model AuditLogs {
 }
 
 model Hold {
-  id String @id @default(uuid())
+  id       String   @id @default(uuid())
+  userId   String
+  datetime DateTime
+  doctorId String
+
+  @@unique([datetime, doctorId])
 }
 
 model Billing {
