@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { Role } from 'generated/prisma';
 import { DoctorService } from './doctor.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Controller('doctor')
+@Roles(Role.DOCTOR, Role.ADMIN)
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 

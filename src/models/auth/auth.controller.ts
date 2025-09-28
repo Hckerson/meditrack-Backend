@@ -6,11 +6,11 @@ import { SignUpDto } from './dto/signup-dto';
 import { VerificationType } from 'generated/prisma';
 import { SpeakeasyService } from 'src/lib/speakesy.service';
 import { ResetPasswordDto } from './dto/reset-password-dto';
-import { LocalAuthGuard } from '../../authentication/passport/guards/local-auth.guard';
-import { GithubAuthGuard } from '../../authentication/passport/guards/github-auth.guard';
-import { GoogleAuthGuard } from '../../authentication/passport/guards/google-auth.guard';
-import { GithubStrategy } from '../../authentication/passport/strategies/github.strategy';
-import { GoogleStrategy } from '../../authentication/passport/strategies/google.strategy';
+import { LocalAuthGuard } from './services/passport/guards/local-auth.guard';
+import { GithubAuthGuard } from './services/passport/guards/github-auth.guard';
+import { GoogleAuthGuard } from './services/passport/guards/google-auth.guard';
+import { GithubStrategy } from './services/passport/strategies/github.strategy';
+import { GoogleStrategy } from './services/passport/strategies/google.strategy';
 import {
   Logger,
   Param,
@@ -163,13 +163,16 @@ export class AuthController {
   }
 
   @Get('profile')
-  Profile(@Req() request: Request){
-    const user = request.session.user
-    return user
+  Profile(@Req() request: Request) {
+    const user = request.session.user;
+    return user;
   }
 
   @Get('logout')
-  logout(@Res({ passthrough: true }) response: Response, @Req() request: Request) {
+  logout(
+    @Res({ passthrough: true }) response: Response,
+    @Req() request: Request,
+  ) {
     return this.authService.logout(request, response);
   }
 }

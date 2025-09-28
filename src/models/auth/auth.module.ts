@@ -9,9 +9,9 @@ import { AuthModuleOptions } from '@nestjs/passport';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SpeakeasyService } from 'src/lib/speakesy.service';
 import { EmailSend } from 'src/lib/services/email/email-send';
-import { LocalStrategy } from '../../authentication/passport/strategies/local.strategy';
-import { GithubStrategy } from '../../authentication/passport/strategies/github.strategy';
-import { GoogleStrategy } from '../../authentication/passport/strategies/google.strategy';
+import { LocalStrategy } from './services/passport/strategies/local.strategy';
+import { GithubStrategy } from './services/passport/strategies/github.strategy';
+import { GoogleStrategy } from './services/passport/strategies/google.strategy';
 
 @Module({
   controllers: [AuthController],

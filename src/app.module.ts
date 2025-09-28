@@ -1,16 +1,19 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import appConfig from './config/app/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './models/auth/auth.module';
-import { DoctorModule } from './models/doctor/doctor.module';
-import { NurseModule } from './models/nurse/nurse.module';
-import { PatientModule } from './models/patient/patient.module';
 import dbConfig from './config/database/configuration';
 import emailConfig from './config/email/configuration';
+import { RolesGuard } from './common/guards/roles.guard';
+import { NurseModule } from './models/nurse/nurse.module';
+import { AdminModule } from './models/admin/admin.module';
 import sessionConfig from './config/session/configuration';
+import { DoctorModule } from './models/doctor/doctor.module';
+import { PatientModule } from './models/patient/patient.module';
 
 @Module({
   imports: [
@@ -30,8 +33,15 @@ import sessionConfig from './config/session/configuration';
     DoctorModule,
     NurseModule,
     PatientModule,
+    AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

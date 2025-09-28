@@ -1,5 +1,5 @@
+import { Role } from 'generated/prisma';
 import { IsEnum, IsString } from 'class-validator';
-import { UserRoles } from '../enums/user-role.enum';
 
 export class SignUpDto {
   @IsString()
@@ -8,8 +8,8 @@ export class SignUpDto {
   @IsString()
   password: string;
 
-  @IsEnum([UserRoles])
-  roles: UserRoles[];
+  @IsEnum([Role])
+  roles: Role[];
 
   @IsString()
   fullName: string;

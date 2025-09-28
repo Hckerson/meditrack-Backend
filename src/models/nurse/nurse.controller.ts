@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { NurseService } from './nurse.service';
 import { CreateNurseDto } from './dto/create-nurse.dto';
 import { UpdateNurseDto } from './dto/update-nurse.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'generated/prisma';
 
+@Roles(Role.ADMIN, Role.NURSE)
 @Controller('nurse')
 export class NurseController {
   constructor(private readonly nurseService: NurseService) {}
