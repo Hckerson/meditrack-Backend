@@ -4,7 +4,6 @@ import { EmailTemplates } from 'src/lib/templates/email';
 import { SendMailOptions, Transporter } from 'nodemailer';
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 
-
 const { welcomeEmail, resetPassword, loginAlert, verifyEmail } = EmailTemplates;
 
 export interface MailOpts {
@@ -48,25 +47,22 @@ export class EmailSend implements OnModuleInit {
     const { resetLink = '', ua = '', verificationLink = '', to = '' } = mail;
     const params: MailOpts = {};
     let template: Template = { subject: '', html: '', text: '' };
-
+    
+    params.name = to?.toString().split('@')[0];
     switch (type) {
       case 'welcome':
-        params.name = to?.toString().split('@')[0];
         template = welcomeEmail(params);
         break;
       case 'reset-password':
-        params.name = to?.toString().split('@')[0];
         params.resetLink = resetLink;
         template = resetPassword(params as { resetLink: string });
         break;
       case 'login-alert':
-        params.name = to?.toString().split('@')[0];
         params.timeISO = new Date().toISOString();
         params.ua = ua;
         template = loginAlert(params as { timeISO: string; ua?: string });
         break;
       case 'verify-email':
-        params.name = to?.toString().split('@')[0];
         params.verificationLink = verificationLink;
         template = verifyEmail(params as { verificationLink: string });
         break;
