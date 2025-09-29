@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import appConfig from './config/app/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './models/auth/auth.module';
 import dbConfig from './config/database/configuration';
 import emailConfig from './config/email/configuration';
@@ -35,6 +36,7 @@ import { AppointmentModule } from './models/appointment/appointment.module';
     NurseModule,
     PatientModule,
     AdminModule,
+    PrismaModule,
     AppointmentModule,
   ],
   controllers: [AppController],

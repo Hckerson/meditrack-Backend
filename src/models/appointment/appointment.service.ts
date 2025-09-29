@@ -1,50 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { Hold, Prisma } from 'generated/prisma';
+import { Injectable, Logger } from '@nestjs/common';
+import { Appointment } from 'generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 @Injectable()
 export class AppointmentService {
+  private readonly HOLD_TIME: number = 15 * 60 * 1000;
+  private readonly logger: Logger = new Logger(AppointmentService.name);
+
   constructor(private prisma: PrismaService) {}
   async bookAppointment(bookAppointmentDto: BookAppointmentDto) {
     // extract args
     const { status, dateTime, doctorId, patientId } = bookAppointmentDto;
 
-    /**
-     * const event = new Date();
-      event.setMonth(10)
-      event.setDate(15)
-      event.setHours(14)
-      event.setMinutes(30)
-     */
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        // check doctor availabiility for the chosen date
-        const doctorAppointment = await this.prisma.doctor.count({
-          where: {
-            id: doctorId,
-            Appointment: {
-              some: {
-                dateTime: {
-                  equals: dateTime,
-                },
+      return await this.prisma.$transaction(
+        async (tx) => {
+          const now = new Date();
+          const expiresAt = new Date(now.getTime() + this.HOLD_TIME);
+          // check doctor availabiility for the chosen date
+          const availableSlot = await tx.appointment.findFirst({
+            where: {
+              doctorId,
+              dateTime: {
+                equals: dateTime,
               },
+              OR: [
+                { status: 'FREE' },
+                { status: 'PENDING', holdExpiresAt: { lt: now } },
+              ],
             },
-          },
-        });
-        if (doctorAppointment.valueOf() > 0) {
-          throw new Error('Date booked');
-        }
+          });
 
-        // if not reserved create a hold on it
-        try {
+          if (!availableSlot) {
+            throw new Error('Time slot not availabe');
+          }
+
+          // create soft lock
+          let hold: Hold;
+          try {
+            hold = await tx.hold.create({
+              data: {
+                doctorId,
+                patientId,
+                expiresAt,
+              },
+            });
+          } catch (error) {
+            this.logger.error('Error creating hold');
+            throw new Error('Error creating hold');
+          }
           
-        } catch (error) {
-          console.error(`Error setting hold on reserved date`)
-        }
 
+          // finally book the appointment
+          let appointment: Appointment;
+          try {
+            appointment = await tx.appointment.create({
+              data: {
+                patientId,
+                doctorId,
+                dateTime,
+                status: 'PENDING',
+                holdId: hold.id,  
+                holdExpiresAt: expiresAt,
+              },
+            });
+          } catch (error) {
+            console.error('Error creating appointment');
+            throw new Error('Error creating appointment');
+          }
 
-      });
+          return appointment;
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
     } catch (error) {
       console.error('Error booking appointment', error);
     }

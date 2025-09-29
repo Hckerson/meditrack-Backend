@@ -140,4 +140,35 @@ export const EmailTemplates = {
     const text = `New ${APP_NAME} login at ${dateText}. If this wasn't you, reset your password: ${APP_URL}/reset-password`;
     return { subject: title, html: renderLayout(title, content), text };
   },
+
+  // * Doctor Appointment Notification
+  doctorAppointmentNotification(params: {
+    doctorName: string;
+    patientName: string;
+    dateTime: string;
+    appointmentLink: string;
+  }) {
+    const title = `New appointment booked with ${params.patientName}`;
+    const formattedDate = new Date(params.dateTime).toLocaleString();
+
+    const content = `
+    <h2 class="greeting">Hello Dr. ${params.doctorName},</h2>
+    <p class="message">You have a new appointment scheduled.</p>
+    <div style="background:#f8f9fa;border-left:4px solid #0056b3;padding:16px 20px;margin:20px 0;border-radius:0 8px 8px 0;">
+      <p style="color:#555;font-size:14px;margin:0;">
+        <strong>Patient:</strong> ${params.patientName}<br/>
+        <strong>Date & Time:</strong> ${formattedDate}
+      </p>
+    </div>
+    <a href="${params.appointmentLink}" class="cta-button">View Appointment</a>
+    <p class="message">Please log in to your dashboard to review details or update your availability.</p>
+  `;
+
+    const text = `New appointment booked:
+  Patient: ${params.patientName}
+  Date & Time: ${formattedDate}
+  Link: ${params.appointmentLink}`;
+
+    return { subject: title, html: renderLayout(title, content), text };
+  },
 };

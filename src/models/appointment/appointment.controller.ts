@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
@@ -16,22 +17,31 @@ export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
   @Post('book')
-  create(@Body() bookAppointmentDto: BookAppointmentDto) {
-    return this.appointmentService.bookAppointment(bookAppointmentDto);
+  async  create(@Body() bookAppointmentDto: BookAppointmentDto) {
+    try {
+      const appointment =await this.appointmentService.bookAppointment(bookAppointmentDto);
+      if(appointment){
+        // send doctor notification
+        
+      }
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+     
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.appointmentService.findAllAppointments();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.appointmentService.findOneAppointment(+id);
   }
 
   @Patch(':id/reschedule')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateAppointmentDto: UpdateAppointmentDto,
   ) {
@@ -39,7 +49,7 @@ export class AppointmentController {
   }
 
   @Delete(':id/cancel')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.appointmentService.removeAppointment(+id);
   }
 }
