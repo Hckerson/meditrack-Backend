@@ -22,7 +22,7 @@ export class LinkService {
     const token = randomBytes(32).toString('hex');
 
     // generate verification link and store in database
-    let user: Pick<User, 'id'> | null
+    let user: Pick<User, 'id'> | null;
     try {
       // find user in database
       user = await this.prisma.user.findUnique({
@@ -31,9 +31,9 @@ export class LinkService {
       });
     } catch (error) {
       this.logger.error(`Error finding user in db`, error);
-      throw new Error('Error generating verification token', error);
+      throw error;
     }
-    
+
     if (!user) {
       this.logger.warn(`User with email ${email} not found`);
       throw new Error('User not found');
@@ -47,8 +47,25 @@ export class LinkService {
       type,
       token,
     );
-    await this.storeVerificationToken(userId, type, token);
-    return verificationUrl;
+
+    const verificationCode = await this.storeVerificationToken(
+      userId,
+      type,
+      token,
+    );
+
+    if (!verificationCode) {
+      return {
+        success: false,
+        message: 'Failed to generate verification link',
+        data: null
+      };
+    }
+    return {
+      success: true,
+      message: 'verification link generated successfully',
+      data: verificationUrl,
+    };
   }
 
   async storeVerificationToken(
@@ -66,12 +83,13 @@ export class LinkService {
           expiresAt: new Date(Date.now() + 1000 * 60 * 15), // 15 minutes
         },
       });
-      if(!verificationCode){
-        throw new Error('Error processing request')
+      if (!verificationCode) {
+        return;
       }
+      return verificationCode;
     } catch (error) {
-      this.logger.error(`Error storing verificaton token`);
-      throw new Error('Error storing verification token')
+      this.logger.error(`Error storing verificaton token`, error);
+      throw error;
     }
   }
 

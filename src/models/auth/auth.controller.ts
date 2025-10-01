@@ -23,6 +23,7 @@ import {
   Res,
   BadRequestException,
   HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { AuthError } from './errors/auth-error';
 
@@ -44,11 +45,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Req() request: Request) {
-    try {
-      return this.authService.login(loginDto, request);
-    } catch (error) {
-      console.error(`Error accesing threat level`);
-    }
+    return this.authService.login(loginDto, request);
   }
 
   @Post('signup')
@@ -77,10 +74,16 @@ export class AuthController {
 
   @Post('password/reset-link')
   async sendResetPasswordLink(@Body('email') email: string) {
-    const verificationLink = await this.link.generateVerificationLink(
+    const verificationData = await this.link.generateVerificationLink(
       email,
       VerificationType.PASSWORD_RESET,
     );
+
+    if(!verificationData.data){
+      throw new HttpException('Failed to generate verification link', HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    const verificationLink = verificationData.data
 
     return await this.authService.sendResetPasswordLink(
       email,

@@ -10,8 +10,4 @@ export class LoginDto extends PartialType(SignUpDto) {
   @IsOptional()
   @IsString()
   twoFactorCode?: string; // Optional field for two-factor authentication
-
-  @IsOptional()
-  @IsString()
-  ipAddress?: string; // Optional field for capturing the user's IP address
 }

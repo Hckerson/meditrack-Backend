@@ -1,9 +1,6 @@
-import { Doctor } from 'generated/prisma';
-import { HttpException } from '@nestjs/common';
 import {
   Injectable,
-  InternalServerErrorException,
-  Logger,
+    Logger,
 } from '@nestjs/common';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { FilterDoctorDto } from './dto/filter-doctor.dto';
@@ -25,20 +22,26 @@ export class DoctorService {
    */
   async findOne(id: string) {
     try {
-      return await this.prisma.doctor.findUnique({
+      const doctor = await this.prisma.doctor.findUnique({
         where: {
           id,
         },
-        include:{
+        include: {
           Appointment: true,
-          Department: true
-        }
+          Department: true,
+        },
       });
+
+      if (!doctor) {
+        return {
+          success: false,
+          message: "specified doctor doesn't exist",
+          data: null,
+        };
+      }
     } catch (error) {
       console.error('Error finding doctor', error);
-      throw new InternalServerErrorException(
-        `Failed to find doctor with id ${id}`,
-      );
+      throw error
     }
   }
 
@@ -70,10 +73,13 @@ export class DoctorService {
       const doctors = await this.prisma.doctor.findMany({
         where: searchData,
       });
-      return doctors;
+      if (doctors) {
+        return doctors;
+      }
+      return [];
     } catch (error) {
       this.logger.error('Error fetching filtered doctor search');
-      return [];
+      throw error
     }
   }
 

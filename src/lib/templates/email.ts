@@ -143,20 +143,20 @@ export const EmailTemplates = {
 
   // * Doctor Appointment Notification
   doctorAppointmentNotification(params: {
-    doctorName: string;
-    patientName: string;
+    name: string;
+    patientId: string;
     dateTime: string;
     appointmentLink: string;
   }) {
-    const title = `New appointment booked with ${params.patientName}`;
+    const title = `New appointment booked with patient ${params.patientId}`;
     const formattedDate = new Date(params.dateTime).toLocaleString();
 
     const content = `
-    <h2 class="greeting">Hello Dr. ${params.doctorName},</h2>
+    <h2 class="greeting">Hello Dr. ${params.name},</h2>
     <p class="message">You have a new appointment scheduled.</p>
     <div style="background:#f8f9fa;border-left:4px solid #0056b3;padding:16px 20px;margin:20px 0;border-radius:0 8px 8px 0;">
       <p style="color:#555;font-size:14px;margin:0;">
-        <strong>Patient:</strong> ${params.patientName}<br/>
+        <strong>Patient:</strong> ${params.patientId}<br/>
         <strong>Date & Time:</strong> ${formattedDate}
       </p>
     </div>
@@ -165,7 +165,7 @@ export const EmailTemplates = {
   `;
 
     const text = `New appointment booked:
-  Patient: ${params.patientName}
+  Patient: ${params.patientId}
   Date & Time: ${formattedDate}
   Link: ${params.appointmentLink}`;
 

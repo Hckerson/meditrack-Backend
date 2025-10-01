@@ -1,19 +1,24 @@
-import { Hold, Prisma } from 'generated/prisma';
-import { Injectable, Logger } from '@nestjs/common';
+import { Doctor, Hold, Prisma } from 'generated/prisma';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Appointment } from 'generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
+import { EmailSendService } from 'src/lib/services/email/email-send';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { EmailType } from 'src/enums/email.enums';
 
 @Injectable()
 export class AppointmentService {
   private readonly HOLD_TIME: number = 15 * 60 * 1000;
   private readonly logger: Logger = new Logger(AppointmentService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly email: EmailSendService,
+  ) {}
   async bookAppointment(bookAppointmentDto: BookAppointmentDto) {
     // extract args
-    const { status, dateTime, doctorId, patientId } = bookAppointmentDto;
+    const { dateTime, doctorId, patientId } = bookAppointmentDto;
 
     try {
       return await this.prisma.$transaction(
@@ -35,42 +40,33 @@ export class AppointmentService {
           });
 
           if (!availableSlot) {
-            throw new Error('Time slot not availabe');
+            return { success: false, message: 'Time slot no longer available' };
           }
 
           // create soft lock
           let hold: Hold;
-          try {
-            hold = await tx.hold.create({
-              data: {
-                doctorId,
-                patientId,
-                expiresAt,
-              },
-            });
-          } catch (error) {
-            this.logger.error('Error creating hold');
-            throw new Error('Error creating hold');
-          }
-          
+
+          hold = await tx.hold.create({
+            data: {
+              doctorId,
+              patientId,
+              expiresAt,
+            },
+          });
 
           // finally book the appointment
           let appointment: Appointment;
-          try {
-            appointment = await tx.appointment.create({
-              data: {
-                patientId,
-                doctorId,
-                dateTime,
-                status: 'PENDING',
-                holdId: hold.id,  
-                holdExpiresAt: expiresAt,
-              },
-            });
-          } catch (error) {
-            console.error('Error creating appointment');
-            throw new Error('Error creating appointment');
-          }
+
+          appointment = await tx.appointment.create({
+            data: {
+              patientId,
+              doctorId,
+              dateTime,
+              status: 'PENDING',
+              holdId: hold.id,
+              holdExpiresAt: expiresAt,
+            },
+          });
 
           return appointment;
         },
@@ -78,6 +74,7 @@ export class AppointmentService {
       );
     } catch (error) {
       console.error('Error booking appointment', error);
+      throw error;
     }
   }
 
@@ -99,4 +96,6 @@ export class AppointmentService {
   async removeAppointment(id: number) {
     return `This action removes a #${id} appointment`;
   }
+
+ 
 }

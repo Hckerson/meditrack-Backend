@@ -11,6 +11,8 @@ export interface MailOpts {
   name?: string;
   timeISO?: string;
   ua?: string;
+  patientId?: string;
+  dateTime?: string;
   resetLink?: string;
   verificationLink?: string;
 }
@@ -22,12 +24,12 @@ interface Template {
 }
 
 @Injectable()
-export class EmailSend implements OnModuleInit {
+export class EmailSendService implements OnModuleInit {
   private transporter: Transporter;
   private readonly logger: Logger;
 
   constructor() {
-    this.logger = new Logger(EmailSend.name);
+    this.logger = new Logger(EmailSendService.name);
   }
 
   onModuleInit() {
@@ -42,15 +44,28 @@ export class EmailSend implements OnModuleInit {
 
   async initializeEmailSender(
     mail: MailOpts,
-    type: 'welcome' | 'reset-password' | 'login-alert' | 'verify-email',
+    type:
+      | 'welcome'
+      | 'reset-password'
+      | 'login-alert'
+      | 'verify-email'
+      | 'notify-doctor',
   ) {
-    const { resetLink = '', ua = '', verificationLink = '', to = '' } = mail;
+    const {
+      resetLink,
+      ua,
+      verificationLink,
+      to,
+      name,
+      patientId,
+      dateTime,
+    } = mail;
     const params: MailOpts = {};
     let template: Template = { subject: '', html: '', text: '' };
-    
-    params.name = to?.toString().split('@')[0];
+
     switch (type) {
       case 'welcome':
+        params.name = to?.toString().split('@')[0];
         template = welcomeEmail(params);
         break;
       case 'reset-password':
@@ -66,6 +81,10 @@ export class EmailSend implements OnModuleInit {
         params.verificationLink = verificationLink;
         template = verifyEmail(params as { verificationLink: string });
         break;
+      case 'notify-doctor':
+        params.name = name;
+        params.patientId = patientId
+        params.dateTime = dateTime
     }
     return this.sendEmail({ ...mail, ...template });
   }
@@ -79,11 +98,11 @@ export class EmailSend implements OnModuleInit {
       });
       this.logger.log('Message sent: %s', info.messageId);
       if (!info)
-        return { success: false, message: 'Email not sent', status: 400 };
-      return { success: true, message: 'Email sent', status: 200 };
+        return { success: false, message: 'Email not sent' };
+      return { success: true, message: 'Email sent'};
     } catch (error) {
       this.logger.error(`Error sending email: ${error}`);
-      return { success: false, message: 'Email not sent', status: 500 };
+      throw error
     }
   }
 }

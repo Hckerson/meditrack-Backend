@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
@@ -17,17 +16,12 @@ export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
   @Post('book')
-  async  create(@Body() bookAppointmentDto: BookAppointmentDto) {
+  async create(@Body() bookAppointmentDto: BookAppointmentDto) {
     try {
-      const appointment =await this.appointmentService.bookAppointment(bookAppointmentDto);
-      if(appointment){
-        // send doctor notification
-        
-      }
+      return await this.appointmentService.bookAppointment(bookAppointmentDto);
     } catch (error) {
-      throw new InternalServerErrorException()
+      return { success: false, message: 'Failed to book appointment' };
     }
-     
   }
 
   @Get()

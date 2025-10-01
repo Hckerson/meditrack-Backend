@@ -5,18 +5,11 @@ import { Request, Response } from 'express';
 import { SignUpDto } from './dto/signup-dto';
 import { EmailType } from 'src/enums/email.enums';
 import { LinkService } from 'src/lib/links.service';
-import { User, VerificationCodes, VerificationType } from 'generated/prisma';
 import { SignJWT, jwtVerify, JWTPayload } from 'jose';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ResetPasswordDto } from './dto/reset-password-dto';
-import { EmailSend, MailOpts } from 'src/lib/services/email/email-send';
-import {
-  Injectable,
-  Logger,
-  HttpException,
-  HttpStatus,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { User, VerificationCodes, VerificationType } from 'generated/prisma';
+import { EmailSendService, MailOpts } from 'src/lib/services/email/email-send';
+import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import { AuthError } from './errors/auth-error';
 
 @Injectable()
@@ -44,7 +37,7 @@ export class AuthService {
    * @throws {Error} if cookie secret is not found
    */
   constructor(
-    private email: EmailSend,
+    private email: EmailSendService,
     private prisma: PrismaService,
     private link: LinkService,
   ) {
@@ -64,7 +57,7 @@ export class AuthService {
    * @returns
    */
   async signUp(signUpDto: SignUpDto) {
-    const { email, password, roles, fullName } = signUpDto;
+    const { email, password, roles, firstName, lastName } = signUpDto;
     if (!email || !password || !roles) {
       this.logger.error(`Email or password not provided`);
       throw new AuthError(
@@ -98,7 +91,8 @@ export class AuthService {
           email: email.toLowerCase(),
           password: hashedPassword,
           provider: 'local',
-          fullname: fullName,
+          firstName,
+          lastName,
           Role: roles,
         },
       });
@@ -118,16 +112,18 @@ export class AuthService {
         EmailType.WELCOME,
       );
 
-      const verificationLink = await this.link.generateVerificationLink(
+      const verificationData = await this.link.generateVerificationLink(
         signUpDto.email,
         VerificationType.VERIFY_EMAIL,
       );
-      if (!verificationLink)
+      if (!verificationData.data)
         //delete user
         throw new AuthError(
           'could not generate verification link',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
+
+      const verificationLink = verificationData.data;
 
       // send the user a verification email
       this.triggerEmailSending(
@@ -141,10 +137,7 @@ export class AuthService {
       return { success: true, message: 'signup successful' };
     } catch (error) {
       this.logger.log(`Error checking user existence: ${error}`);
-
-      if (error instanceof AuthError) {
-        throw error;
-      }
+      throw error;
     }
   }
 
@@ -155,48 +148,53 @@ export class AuthService {
    * @returns -Resoves an object with a message and an HTTP status code
    */
   async login(loginDto: LoginDto, request: Request) {
-    if (!loginDto.password || !loginDto.email)
-      throw new AuthError('Incomplete credentials', HttpStatus.BAD_REQUEST);
+    try {
+      if (!loginDto.password || !loginDto.email)
+        throw new AuthError('Incomplete credentials', HttpStatus.BAD_REQUEST);
 
-    // destructuring loginDTO
-    const { email = '', password, rememberMe } = loginDto;
+      // destructuring loginDTO
+      const { email = '', password = '', rememberMe } = loginDto;
 
-    // call the validateUser function
-    const result = await this.validateUser(email, password);
+      // call the validateUser function
+      const result = await this.validateUser(email, password);
 
-    // check if result contains the data payload
-    if (!result?.data?.isValid) {
-      throw new AuthError('invalid credentials', HttpStatus.UNAUTHORIZED);
+      // check if result contains the data payload
+      if (!result?.data?.isValid) {
+        throw new AuthError('invalid credentials', HttpStatus.UNAUTHORIZED);
+      }
+      const { id, Role } = result?.data as {
+        id: string;
+        Role: string[];
+      };
+      // process login if user validation was successfull
+
+      const fingerprint = await this.generateFingerprint(request);
+
+      const sessionTTL = rememberMe
+        ? 7 * 24 * 60 * 60 * 1000
+        : 1 * 60 * 60 * 1000;
+
+      request.session.user = {
+        id,
+        roles: Role,
+        fingerprint,
+      };
+
+      console.log(request.session.user);
+      request.session.cookie.maxAge = sessionTTL;
+
+      // send login-alert email
+      await this.triggerEmailSending(
+        {
+          to: email,
+        },
+        EmailType.LOGIN_ALERT,
+      );
+      return { success: true, message: 'login successful' };
+    } catch (error) {
+      this.logger.error('Error logging in');
+      throw error;
     }
-    const { id, Role } = result?.data as {
-      id: string;
-      Role: string[];
-    };
-    // process login if user validation was successfull
-
-    const fingerprint = await this.generateFingerprint(request);
-
-    const sessionTTL = rememberMe
-      ? 7 * 24 * 60 * 60 * 1000
-      : 1 * 60 * 60 * 1000;
-
-    request.session.user = {
-      id,
-      roles: Role,
-      fingerprint,
-    };
-
-    console.log(request.session.user);
-    request.session.cookie.maxAge = sessionTTL;
-
-    // send login-alert email
-    await this.triggerEmailSending(
-      {
-        to: email,
-      },
-      EmailType.LOGIN_ALERT,
-    );
-    return { success: true, message: 'login successful' };
   }
 
   /**
@@ -260,7 +258,7 @@ export class AuthService {
     // check if user is valid
     const isValid = await bcrypt.compare(password, hashedPassword);
     if (!isValid)
-      return { success: false, message: 'Invalid credentials', data: null };
+      throw new AuthError('Invalid credentials', HttpStatus.UNAUTHORIZED);
 
     return {
       success: true,
@@ -313,7 +311,7 @@ export class AuthService {
       request.session.destroy((err) => {
         if (err) {
           console.error(`Error logging user out`, err);
-          reject(new InternalServerErrorException('Failed to logout'));
+          reject(new Error('Failed to logout'));
           return;
         }
         response.clearCookie('connect.sid');
@@ -532,6 +530,7 @@ export class AuthService {
       );
     } catch (error) {
       console.error(`Error triggering email: ${error}`);
+      throw error;
     }
   }
 }

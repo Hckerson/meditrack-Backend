@@ -1,5 +1,9 @@
 import * as speakeasy from 'speakeasy';
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { QrcodeService } from './qr-code';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -24,6 +28,7 @@ export class SpeakeasyService {
       });
     } catch (error) {
       console.error('Error setting up two factor for user ', userId);
+      throw error;
     }
     // Return the URL for the authenticator app
     const qrCode = await this.getQrCodeForUser(userId);
@@ -40,7 +45,7 @@ export class SpeakeasyService {
       select: { speakeasySecret: true, email: true },
     });
     if (!user?.speakeasySecret) {
-      throw new Error('2FA not set up for this user');
+      throw new NotFoundException('2FA not set up for this user');
     }
     const otpauthUrl = speakeasy.otpauthURL({
       secret: user.speakeasySecret,
@@ -59,7 +64,7 @@ export class SpeakeasyService {
       select: { speakeasySecret: true },
     });
     if (!user?.speakeasySecret) {
-      throw new Error('2FA not set up for this user');
+      throw new UnauthorizedException('2FA not set up for this user');
     }
     return speakeasy.totp.verify({
       secret: user.speakeasySecret,
@@ -68,5 +73,4 @@ export class SpeakeasyService {
       window: 1, // allow one-step clock drift
     });
   }
-
 }

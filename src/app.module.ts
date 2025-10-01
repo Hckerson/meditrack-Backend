@@ -16,6 +16,7 @@ import sessionConfig from './config/session/configuration';
 import { DoctorModule } from './models/doctor/doctor.module';
 import { PatientModule } from './models/patient/patient.module';
 import { AppointmentModule } from './models/appointment/appointment.module';
+import { NotificationModule } from './models/notification/notification.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AppointmentModule } from './models/appointment/appointment.module';
     AdminModule,
     PrismaModule,
     AppointmentModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

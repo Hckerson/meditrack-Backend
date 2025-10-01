@@ -8,7 +8,7 @@ import { LinkService } from 'src/lib/links.service';
 import { AuthModuleOptions } from '@nestjs/passport';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SpeakeasyService } from 'src/lib/speakesy.service';
-import { EmailSend } from 'src/lib/services/email/email-send';
+import { EmailSendService } from 'src/lib/services/email/email-send';
 import { LocalStrategy } from './services/passport/strategies/local.strategy';
 import { GithubStrategy } from './services/passport/strategies/github.strategy';
 import { GoogleStrategy } from './services/passport/strategies/google.strategy';
@@ -17,13 +17,13 @@ import { GoogleStrategy } from './services/passport/strategies/google.strategy';
   controllers: [AuthController],
   providers: [
     LinkService,
-    EmailSend,
     AuthService,
     PrismaService,
     LocalStrategy,
     QrcodeService,
     GoogleStrategy,
     GithubStrategy,
+    EmailSendService,
     SpeakeasyService,
     AuthModuleOptions,
     {
