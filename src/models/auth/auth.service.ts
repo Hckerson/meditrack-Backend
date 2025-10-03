@@ -57,8 +57,16 @@ export class AuthService {
    * @returns
    */
   async signUp(signUpDto: SignUpDto) {
-    const { email, password, roles, firstName, lastName } = signUpDto;
-    if (!email || !password || !roles) {
+    const {
+      email,
+      password,
+      role,
+      firstName,
+      lastName,
+      departmentId,
+      specialization,
+    } = signUpDto;
+    if (!email || !password || !role) {
       this.logger.error(`Email or password not provided`);
       throw new AuthError(
         'email or password not provided',
@@ -86,6 +94,29 @@ export class AuthService {
       this.logger.log(`Creating new user in database`);
       const hashedPassword = await bcrypt.hash(password, 10);
       console.log('Creating user with data', signUpDto);
+
+      // create appropriate role
+
+      const roleType: Record<string, any> = {};
+
+      switch (role) {
+        case 'ADMIN':
+          break;
+        case 'DOCTOR':
+          const dept: Record<string, any> = {};
+          dept.Department = {
+            connect: {
+              id: departmentId,
+            },
+          };
+          dept.specialization = specialization;
+          roleType.Doctor = dept;
+
+          break;
+        case 'NURSE':
+          break;
+      }
+
       const newUser = await this.prisma.user.create({
         data: {
           email: email.toLowerCase(),
@@ -93,7 +124,7 @@ export class AuthService {
           provider: 'local',
           firstName,
           lastName,
-          Role: roles,
+          role: [role],
         },
       });
 
@@ -162,9 +193,9 @@ export class AuthService {
       if (!result?.data?.isValid) {
         throw new AuthError('invalid credentials', HttpStatus.UNAUTHORIZED);
       }
-      const { id, Role } = result?.data as {
+      const { id, role } = result?.data as {
         id: string;
-        Role: string[];
+        role: string[];
       };
       // process login if user validation was successfull
 
@@ -176,7 +207,7 @@ export class AuthService {
 
       request.session.user = {
         id,
-        roles: Role,
+        roles: role,
         fingerprint,
       };
 
@@ -231,7 +262,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     // check for user in the database
     this.logger.log(`Finding user in database`);
-    let userInfo: Pick<User, 'password' | 'id' | 'Role'> | null;
+    let userInfo: Pick<User, 'password' | 'id' | 'role'> | null;
     try {
       userInfo = await this.prisma.user.findUnique({
         where: {
@@ -240,7 +271,7 @@ export class AuthService {
         select: {
           password: true,
           id: true,
-          Role: true,
+          role: true,
         },
       });
     } catch (error) {
@@ -254,7 +285,7 @@ export class AuthService {
       throw new AuthError('Invalid user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const { password: hashedPassword, id, Role } = userInfo;
+    const { password: hashedPassword, id, role } = userInfo;
     // check if user is valid
     const isValid = await bcrypt.compare(password, hashedPassword);
     if (!isValid)
@@ -263,7 +294,7 @@ export class AuthService {
     return {
       success: true,
       message: 'User validated successfully',
-      data: { isValid, id, Role },
+      data: { isValid, id, role },
     };
   }
 

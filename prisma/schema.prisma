@@ -205,7 +205,7 @@ model User {
   id               String              @id @default(uuid())
   email            String              @unique
   password         String
-  Role             Role[]              @default([PATIENT])
+  role             Role[]              @default([PATIENT])
   speakeasySecret  String?
   firstName        String
   lastName         String
