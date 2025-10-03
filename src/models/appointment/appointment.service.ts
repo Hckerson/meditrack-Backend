@@ -104,7 +104,10 @@ export class AppointmentService {
    * @param userId - ID of the patient initiating the cancellation
    * @param appointmentId - ID of the appointment
    */
-  async cancelAppointment(appointmentId: string) {
+  async cancelAppointment(
+    appointmentId: string,
+    doctorAction: boolean = false,
+  ) {
     try {
       this.logger.log('looking up appointment appointment');
       const appointment = await this.prisma.appointment.update({
@@ -127,15 +130,20 @@ export class AppointmentService {
       // extract required params
 
       const { doctorId, patientId } = appointment;
-      // notify doctor then
 
-      await this.notification.notifyDoctorUsingId(
-        {
-          doctorId,
-          patientId,
-        },
-        EmailType.CANCEL_APPOINTMENT,
-      );
+      if (doctorAction) {
+        // notify patient
+      } else {
+        // notify doctor then
+
+        await this.notification.notifyDoctorUsingId(
+          {
+            doctorId,
+            patientId,
+          },
+          EmailType.CANCEL_APPOINTMENT,
+        );
+      }
 
       return { success: true, message: 'Appointment cancelled successfully' };
     } catch (error) {
@@ -196,10 +204,9 @@ export class AppointmentService {
         EmailType.RESCHEDULE_APPOINTMENT,
       );
 
-      if(response.success){
+      if (response.success) {
         // create audit logs
       }
-
     } catch (error) {
       console.error('Failed to reshedule appointment', error);
       throw error;

@@ -1,7 +1,4 @@
-import {
-  Injectable,
-    Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { FilterDoctorDto } from './dto/filter-doctor.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -41,7 +38,7 @@ export class DoctorService {
       }
     } catch (error) {
       console.error('Error finding doctor', error);
-      throw error
+      throw error;
     }
   }
 
@@ -79,7 +76,7 @@ export class DoctorService {
       return [];
     } catch (error) {
       this.logger.error('Error fetching filtered doctor search');
-      throw error
+      throw error;
     }
   }
 
