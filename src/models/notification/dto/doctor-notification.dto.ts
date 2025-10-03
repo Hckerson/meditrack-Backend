@@ -2,8 +2,7 @@ import { IsString, IsNotEmpty } from 'class-validator';
 
 export class NotifyDoctorDto {
   @IsString()
-  @IsNotEmpty()
-  dateTime: string;
+  dateTime?: string;
 
   @IsString()
   @IsNotEmpty()

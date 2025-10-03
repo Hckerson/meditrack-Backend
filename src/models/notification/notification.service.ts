@@ -23,8 +23,11 @@ export class NotificationService {
    * Helper function for sending notificaion to the doctor
    * @param doctorId - ID of the doctor to be notified
    */
-  async notifyDoctorUsingId(notifyDoctorDto: NotifyDoctorDto) {
-    const {doctorId, patientId, dateTime} = notifyDoctorDto
+  async notifyDoctorUsingId(
+    notifyDoctorDto: NotifyDoctorDto,
+    notificationType: EmailType,
+  ) {
+    const { doctorId, patientId, dateTime } = notifyDoctorDto;
     try {
       // first find the doctor and retrieve his/ her email
       const doctor = await this.prisma.doctor.findUnique({
@@ -37,7 +40,7 @@ export class NotificationService {
       });
 
       if (!doctor) {
-        throw new NotFoundException("Couldn't find doctor record");
+        throw new NotFoundException("Couldn't find doctor to notify");
       }
 
       // extract email
@@ -50,7 +53,7 @@ export class NotificationService {
           patientId,
           dateTime,
         },
-        EmailType.NOTIFY_DOCTOR,
+        notificationType,
       );
 
       if (!response.success) {

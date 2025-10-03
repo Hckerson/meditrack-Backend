@@ -49,17 +49,11 @@ export class EmailSendService implements OnModuleInit {
       | 'reset-password'
       | 'login-alert'
       | 'verify-email'
-      | 'notify-doctor',
+      | 'book-appointment'
+      | 'cancel-appointment',
   ) {
-    const {
-      resetLink,
-      ua,
-      verificationLink,
-      to,
-      name,
-      patientId,
-      dateTime,
-    } = mail;
+    const { resetLink, ua, verificationLink, to, name, patientId, dateTime } =
+      mail;
     const params: MailOpts = {};
     let template: Template = { subject: '', html: '', text: '' };
 
@@ -81,10 +75,10 @@ export class EmailSendService implements OnModuleInit {
         params.verificationLink = verificationLink;
         template = verifyEmail(params as { verificationLink: string });
         break;
-      case 'notify-doctor':
+      case 'book-appointment':
         params.name = name;
-        params.patientId = patientId
-        params.dateTime = dateTime
+        params.patientId = patientId;
+        params.dateTime = dateTime;
     }
     return this.sendEmail({ ...mail, ...template });
   }
@@ -97,12 +91,11 @@ export class EmailSendService implements OnModuleInit {
         ...mail,
       });
       this.logger.log('Message sent: %s', info.messageId);
-      if (!info)
-        return { success: false, message: 'Email not sent' };
-      return { success: true, message: 'Email sent'};
+      if (!info) return { success: false, message: 'Email not sent' };
+      return { success: true, message: 'Email sent' };
     } catch (error) {
       this.logger.error(`Error sending email: ${error}`);
-      throw error
+      throw error;
     }
   }
 }

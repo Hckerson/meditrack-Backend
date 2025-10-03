@@ -6,5 +6,6 @@ import { EmailSendService } from 'src/lib/services/email/email-send';
 @Module({
   controllers: [NotificationController],
   providers: [NotificationService, EmailSendService],
+  exports: [NotificationService],
 })
 export class NotificationModule {}
