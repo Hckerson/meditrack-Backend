@@ -1,17 +1,11 @@
 import { Appointment } from 'generated/prisma';
 import { Hold, Prisma } from 'generated/prisma';
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { EmailType } from 'src/enums/email.enums';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
 import { NotificationService } from '../notification/notification.service';
-import { EmailType } from 'src/enums/email.enums';
 
 @Injectable()
 export class AppointmentService {
@@ -125,7 +119,7 @@ export class AppointmentService {
 
       if (!appointment) {
         throw new HttpException(
-          'Failed to book appointmen',
+          'Failed to book appointment',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -158,11 +152,58 @@ export class AppointmentService {
     return `This action returns a #${id} appointment`;
   }
 
-  async updateAppointment(
-    id: number,
-    updateAppointmentDto: UpdateAppointmentDto,
+  async rescheduleAppointment(
+    appointmentId: string,
+    rescheduleAppointmentDto: RescheduleAppointmentDto,
   ) {
-    return `This action updates a #${id} appointment`;
+    try {
+      // extract participants
+      const {
+        status,
+        dateTime,
+        doctorId = '',
+        patientId = '',
+        initiator,
+      } = rescheduleAppointmentDto;
+
+      let update: Record<string, any> = {};
+
+      if (status) {
+        update.status = status;
+      }
+      if (dateTime) {
+        update.dateTime = dateTime;
+      }
+      if (doctorId) {
+        update.doctorId = doctorId;
+      }
+      if (patientId) {
+        update.patientId = patientId;
+      }
+
+      await this.prisma.appointment.update({
+        where: {
+          id: appointmentId,
+        },
+        data: update,
+      });
+
+      const response = await this.notification.notifyDoctorUsingId(
+        {
+          doctorId,
+          patientId,
+        },
+        EmailType.RESCHEDULE_APPOINTMENT,
+      );
+
+      if(response.success){
+        // create audit logs
+      }
+
+    } catch (error) {
+      console.error('Failed to reshedule appointment', error);
+      throw error;
+    }
   }
 
   async removeAppointment(id: number) {

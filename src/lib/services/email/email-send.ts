@@ -4,16 +4,24 @@ import { EmailTemplates } from 'src/lib/templates/email';
 import { SendMailOptions, Transporter } from 'nodemailer';
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 
-const { welcomeEmail, resetPassword, loginAlert, verifyEmail } = EmailTemplates;
+const {
+  welcomeEmail,
+  resetPassword,
+  loginAlert,
+  verifyEmail,
+  doctorNotification,
+} = EmailTemplates;
 
 export interface MailOpts {
   to?: string;
-  name?: string;
-  timeISO?: string;
   ua?: string;
+  name?: string;
+  action?: string;
+  timeISO?: string;
   patientId?: string;
   dateTime?: string;
   resetLink?: string;
+  appointmentLink?: string;
   verificationLink?: string;
 }
 
@@ -50,7 +58,8 @@ export class EmailSendService implements OnModuleInit {
       | 'login-alert'
       | 'verify-email'
       | 'book-appointment'
-      | 'cancel-appointment',
+      | 'cancel-appointment'
+      | 'reschedule-appointment',
   ) {
     const { resetLink, ua, verificationLink, to, name, patientId, dateTime } =
       mail;
@@ -79,6 +88,17 @@ export class EmailSendService implements OnModuleInit {
         params.name = name;
         params.patientId = patientId;
         params.dateTime = dateTime;
+        params.appointmentLink = '';
+        params.action = type.split('-')[0];
+        template = doctorNotification(
+          params as {
+            name: string;
+            patientId: string;
+            dateTime: string;
+            action: string;
+            appointmentLink: string;
+          },
+        );
     }
     return this.sendEmail({ ...mail, ...template });
   }

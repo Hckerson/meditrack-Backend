@@ -142,11 +142,12 @@ export const EmailTemplates = {
   },
 
   // * Doctor Appointment Notification
-  doctorAppointmentNotification(params: {
+  doctorNotification(params: {
     name: string;
     patientId: string;
     dateTime: string;
     appointmentLink: string;
+    action: string
   }) {
     const title = `New appointment booked with patient ${params.patientId}`;
     const formattedDate = new Date(params.dateTime).toLocaleString();

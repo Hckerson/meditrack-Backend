@@ -1,4 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
 import { BookAppointmentDto } from './create-appointment.dto';
 
-export class UpdateAppointmentDto extends PartialType(BookAppointmentDto) {}
+export class RescheduleAppointmentDto extends PartialType(BookAppointmentDto) {
+  initiator: string;
+}

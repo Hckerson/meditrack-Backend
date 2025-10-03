@@ -10,12 +10,16 @@ import {
   HttpException,
   HttpStatus,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
-import { AppointmentService } from './appointment.service';
-import { BookAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { Request } from 'express';
+import { Role } from 'generated/prisma';
+import { AppointmentService } from './appointment.service';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { BookAppointmentDto } from './dto/create-appointment.dto';
+import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
 
+@Roles(Role.PATIENT)
 @Controller('appointment')
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
@@ -54,13 +58,15 @@ export class AppointmentController {
   @Patch(':id/reschedule')
   async update(
     @Param('id') id: string,
-    @Body() updateAppointmentDto: UpdateAppointmentDto,
+    @Body() rescheduleAppointmentDto: RescheduleAppointmentDto,
   ) {
-    return this.appointmentService.updateAppointment(+id, updateAppointmentDto);
-  }
+    if (!rescheduleAppointmentDto.dateTime) {
+      throw new BadRequestException('New date is missing');
+    }
 
-  @Delete(':id/cancel')
-  async remove(@Param('id') id: string) {
-    return this.appointmentService.removeAppointment(+id);
+    return this.appointmentService.rescheduleAppointment(
+      id,
+      rescheduleAppointmentDto,
+    );
   }
 }
