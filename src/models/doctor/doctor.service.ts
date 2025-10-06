@@ -2,6 +2,7 @@ import { FilterDoctorDto } from './dto/filter-doctor.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
+import { CreateRecordDto } from './dto/create-record.dto';
 
 @Injectable()
 export class DoctorService {
@@ -47,16 +48,63 @@ export class DoctorService {
           MedicalRecord: { id },
         },
       } = appointment;
-
-      if (!appointment?.Record) {
-        // await this.prisma.record.create({
-        //   data:{
-        //   }
-        // })
-      }
     } catch (error) {
       this.logger.error('Error issuing prescription');
       throw error;
+    }
+  }
+
+  /**
+   * Create record of everything during and after the appointment
+   */
+  async createRecord(recordDto: CreateRecordDto, appointmentId: string) {
+    try {
+      // find patient with the appointmend id to extract medicalRecord data
+
+      const patient = await this.prisma.patient.findFirst({
+        where: {
+          Appointment: {
+            some: {
+              id: appointmentId,
+            },
+          },
+        },
+        select: {
+          MedicalRecord: true,
+        },
+      });
+
+      if (!patient?.MedicalRecord) {
+        throw new HttpException(
+          'Error processing request, check if user has completed registration',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const { id } = patient.MedicalRecord;
+
+      const doctor = await this.prisma.appointment.findUnique({
+        where: {
+          id: appointmentId,
+        },
+      });
+
+      if (!doctor) {
+        throw new HttpException(
+          "Couldn't process requet",
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      const { id: doctorId } = doctor;
+
+      await this.prisma.record.create({
+        data: { ...recordDto, appointmentId, medicalRecordId: id, doctorId },
+      });
+
+      return { success: true, message: 'Record created successfully' };
+    } catch (error) {
+      console.error('Error creating record');
     }
   }
 

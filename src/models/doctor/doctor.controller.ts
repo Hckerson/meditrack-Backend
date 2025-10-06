@@ -20,6 +20,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AppointmentService } from '../appointment/appointment.service';
 import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
+import { CreateRecordDto } from './dto/create-record.dto';
 
 @Controller('doctor')
 export class DoctorController {
@@ -44,7 +45,9 @@ export class DoctorController {
   async findOne(@Param('id') id: string) {
     return this.doctorService.findOne(id);
   }
-  @Get('appointment/:id/cancel')
+
+  @Roles(Role.DOCTOR)
+  @Get(':appointmentId/cancel')
   async cancel(@Req() req: Request, @Param() id: string) {
     // extract user from request
     const { user } = req.session;
@@ -87,5 +90,17 @@ export class DoctorController {
       this.logger.error('Error saving prescription');
       throw error;
     }
+  }
+
+  @Post(':appointmentId/record/create')
+  async createRecord(
+    @Param('appointmentId') appointmentId: string,
+    @Body() recordDto: CreateRecordDto,
+  ) {
+    if (!appointmentId) {
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.doctorService.createRecord(recordDto, appointmentId)
   }
 }

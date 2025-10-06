@@ -86,6 +86,8 @@ export class AppointmentService {
             },
             EmailType.BOOK_APPONTMENT,
           );
+
+          
           return {
             success: true,
             data: appointment,

@@ -192,6 +192,9 @@ model Prescription {
 model Record {
   id              String        @id @default(uuid())
   medicalRecordId String
+  ailment         String        @default("Unknown")
+  symptoms        String[]
+  testRequired    Boolean       @default(false)
   appointmentId   String        @unique
   storageId       String?
   Doctor          Doctor        @relation(fields: [doctorId], references: [id])
