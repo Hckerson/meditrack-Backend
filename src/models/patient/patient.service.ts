@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+
 
 @Injectable()
 export class PatientService {
-  create(createPatientDto: CreatePatientDto) {
-    return 'This action adds a new patient';
+  constructor(private readonly prisma: PrismaService) {}
+
+
+  async fetchAllMedicalRecords(userId: string) {
+    try {
+      // find patient with this id
+
+      const patient = await this.prisma.patient.findUnique({
+        where: {
+          userId,
+        },
+      });
+
+      if (!patient) {
+        throw new HttpException(
+          'Invalid user provided',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const { id } = patient;
+
+      // get patient records
+      const records = await this.prisma.patient.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          Appointment: true,
+          MedicalRecord: true,
+        },
+      });
+      return records;
+    } catch (error) {
+      console.error('Error fetching patient medical records');
+      throw error;
+    }
   }
 
-  findAll() {
-    return `This action returns all patient`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} patient`;
-  }
-
-  update(id: number, updatePatientDto: UpdatePatientDto) {
-    return `This action updates a #${id} patient`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} patient`;
-  }
 }
+
+//add remailnig record model props

@@ -40,7 +40,7 @@ export class NotificationService {
       });
 
       if (!doctor) {
-        throw new NotFoundException("Couldn't find doctor to notify");
+        throw new NotFoundException("Couldn't notify doctor");
       }
 
       // extract email

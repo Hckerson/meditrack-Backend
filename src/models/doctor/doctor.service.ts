@@ -12,6 +12,14 @@ export class DoctorService {
     return `This action returns all doctor`;
   }
 
+  async issuePrescription(){
+    try {
+      
+    } catch (error) {
+      console.error('Error issuing prescription')
+    }
+  }
+
   /**
    * Find a specified doctor and return all data partaining to him or her
    * @param id - ID  of the doctor being searched for
@@ -80,11 +88,6 @@ export class DoctorService {
     }
   }
 
-  async update(id: string, updateDoctorDto: UpdateDoctorDto) {
-    return `This action updates a #${id} doctor`;
-  }
 
-  async remove(id: number) {
-    return `This action removes a #${id} doctor`;
-  }
+
 }

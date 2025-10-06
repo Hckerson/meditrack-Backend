@@ -74,6 +74,7 @@ model Appointment {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt()
   Billing       Billing[]
+  Record        Record?
 
   @@unique([doctorId, dateTime])
   @@index([dateTime(sort: Asc)])
@@ -142,16 +143,19 @@ model Hold {
 }
 
 model MedicalRecord {
-  id           String         @id @default(uuid())
-  Patient      Patient        @relation(fields: [patientId], references: [id])
-  patientId    String         @unique
-  storageId    String
-  version      String
-  Doctor       Doctor         @relation(fields: [doctorId], references: [id])
-  doctorId     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt()
-  Prescription Prescription[]
+  id        String   @id @default(uuid())
+  Patient   Patient  @relation(fields: [patientId], references: [id])
+  patientId String   @unique
+  storageId String
+  phone     String
+  address   String
+  gender    String
+  version   String
+  Doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  doctorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+  Record   Record[]
 }
 
 model Medication {
@@ -174,21 +178,27 @@ model Patient {
   userId        String         @unique
   Appointment   Appointment[]
   MedicalRecord MedicalRecord?
-  Prescription  Prescription[]
 }
 
 model Prescription {
+  id           String       @id @default(uuid())
+  Record       Record       @relation(fields: [recordId], references: [id])
+  recordId     String       @unique
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt()
+  doctorId     String
+  Medication   Medication[]
+  Doctor       Doctor       @relation(fields: [doctorId], references: [id])
+  medicationId String
+}
+
+model Record {
   id              String        @id @default(uuid())
-  MedicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id])
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt()
-  patientId       String
-  doctorId        String
-  Medication      Medication[]
-  Patient         Patient       @relation(fields: [patientId], references: [id])
-  Doctor          Doctor        @relation(fields: [doctorId], references: [id])
   medicalRecordId String
-  medicationId    String
+  appointmentId   String        @unique
+  Appointment     Appointment   @relation(fields: [appointmentId], references: [id])
+  MedicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+  Prescription    Prescription?
 }
 
 model Session {

@@ -12,7 +12,6 @@ import { Request } from 'express';
 import { Role } from 'generated/prisma';
 import { DoctorService } from './doctor.service';
 import { UnauthorizedException } from '@nestjs/common';
-import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { FilterDoctorDto } from './dto/filter-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -49,18 +48,10 @@ export class DoctorController {
     return await this.appointmentService.cancelAppointment(id, true);
   }
 
-  @Roles(Role.DOCTOR, Role.ADMIN)
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateDoctorDto: UpdateDoctorDto,
-  ) {
-    return this.doctorService.update(id, updateDoctorDto);
+
+  @Post('prescription/issue')
+  async issuePrescription() {
+    return this.doctorService.issuePrescription();
   }
 
-  @Roles(Role.ADMIN)
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.doctorService.remove(+id);
-  }
 }
