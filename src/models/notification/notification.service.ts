@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { EmailType } from 'src/enums/email.enums';
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -7,6 +7,7 @@ import { NotifyDoctorDto } from './dto/doctor-notification.dto';
 
 @Injectable()
 export class NotificationService {
+  private readonly logger:Logger = new Logger(NotificationService.name)
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailSendService,
@@ -64,7 +65,7 @@ export class NotificationService {
       }
       return { success: true, message: 'Doctor notified succssfully' };
     } catch (error) {
-      console.error('Error notifying doctor');
+      this.logger.error('Error notifying doctor');
       throw error;
     }
   }

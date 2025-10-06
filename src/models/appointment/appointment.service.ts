@@ -208,7 +208,7 @@ export class AppointmentService {
         // create audit logs
       }
     } catch (error) {
-      console.error('Failed to reshedule appointment', error);
+      this.logger.error('Failed to reshedule appointment', error);
       throw error;
     }
   }

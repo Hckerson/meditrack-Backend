@@ -5,8 +5,8 @@ import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class DoctorService {
+  private readonly logger:Logger = new Logger(DoctorService.name)
   constructor(private readonly prisma: PrismaService) {}
-  private readonly logger: Logger = new Logger(DoctorService.name);
 
   async findAll() {
     return `This action returns all doctor`;
@@ -41,7 +41,7 @@ export class DoctorService {
         // })
       }
     } catch (error) {
-      console.error('Error issuing prescription');
+      this.logger.error('Error issuing prescription');
       throw(error)
     }
   }
@@ -71,7 +71,7 @@ export class DoctorService {
         };
       }
     } catch (error) {
-      console.error('Error finding doctor', error);
+      this.logger.error('Error finding doctor', error);
       throw error;
     }
   }

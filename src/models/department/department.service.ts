@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateDeptDto } from './dto/create-dept.dto';
 
 @Injectable()
 export class DepartmentService {
+  private readonly logger:Logger = new Logger(DepartmentService.name)
   constructor(private readonly prisma: PrismaService) {}
 
   async createDepartment(createDeptDto: CreateDeptDto) {
@@ -13,7 +14,7 @@ export class DepartmentService {
       });
       return { success: true, message: 'Department created successfully' };
     } catch (error) {
-      console.error('Error creating department');
+      this.logger.error('Error creating department');
       throw error;
     }
   }

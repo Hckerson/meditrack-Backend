@@ -353,7 +353,7 @@ export class AuthService {
     return new Promise((resolve, reject) => {
       request.session.destroy((err) => {
         if (err) {
-          console.error(`Error logging user out`, err);
+          this.logger.error(`Error logging user out`, err);
           reject(new Error('Failed to logout'));
           return;
         }
@@ -514,7 +514,7 @@ export class AuthService {
         },
       });
     } catch (error) {
-      console.error(`Error fetching user: ${error}`);
+      this.logger.error(`Error fetching user: ${error}`);
       throw new AuthError(
         'Error processing request',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -572,7 +572,7 @@ export class AuthService {
         `${type == 'verify-email' ? 'email verification' : type} email sent to ${options.to?.split('@')[0]}`,
       );
     } catch (error) {
-      console.error(`Error triggering email: ${error}`);
+      this.logger.error(`Error triggering email: ${error}`);
       throw error;
     }
   }

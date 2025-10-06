@@ -9,6 +9,7 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { Role } from 'generated/prisma';
@@ -22,12 +23,13 @@ import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
 
 @Controller('doctor')
 export class DoctorController {
+  private readonly logger: Logger = new Logger(DoctorController.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly doctorService: DoctorService,
     private readonly appointmentService: AppointmentService,
   ) {}
-  
+
   @Get()
   async findAll() {
     return this.doctorService.findAll();
@@ -82,7 +84,7 @@ export class DoctorController {
         appointmentId,
       );
     } catch (error) {
-      console.error('Error saving prescription');
+      this.logger.error('Error saving prescription');
       throw error;
     }
   }
