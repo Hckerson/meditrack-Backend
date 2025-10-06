@@ -1,10 +1,10 @@
 import 'dotenv/config';
-import { createClient, RedisClientType } from 'redis';
+import { createClient } from 'redis';
 import session from 'express-session';
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { RedisStore } from 'connect-redis';
-import { ConsoleLogger } from '@nestjs/common';
+import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const InitializeClients = async () => {
@@ -66,6 +66,10 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true
+  }));
 
   const document = SwaggerModule.createDocument(app, config);
 

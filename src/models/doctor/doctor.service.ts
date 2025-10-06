@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { FilterDoctorDto } from './dto/filter-doctor.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class DoctorService {
@@ -12,11 +12,30 @@ export class DoctorService {
     return `This action returns all doctor`;
   }
 
-  async issuePrescription(){
+  async issuePrescription(
+    prescriptionDto: IssuePrescriptionDto,
+    appointmentId: string,
+  ) {
     try {
-      
+      const appointment = await this.prisma.appointment.findUnique({
+        where: {
+          id: appointmentId,
+        },
+        select:{
+          Record: true
+        }
+      });
+
+      if (!appointment?.Record) {
+        // await this.prisma.record.create({
+        //   data:{
+
+        //   }
+        // })
+      }
     } catch (error) {
-      console.error('Error issuing prescription')
+      console.error('Error issuing prescription');
+      throw(error)
     }
   }
 
@@ -87,7 +106,4 @@ export class DoctorService {
       throw error;
     }
   }
-
-
-
 }

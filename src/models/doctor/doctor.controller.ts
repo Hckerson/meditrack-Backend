@@ -7,22 +7,27 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { Role } from 'generated/prisma';
 import { DoctorService } from './doctor.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { FilterDoctorDto } from './dto/filter-doctor.dto';
-import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AppointmentService } from '../appointment/appointment.service';
+import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
 
 @Controller('doctor')
 export class DoctorController {
   constructor(
+    private readonly prisma: PrismaService,
     private readonly doctorService: DoctorService,
     private readonly appointmentService: AppointmentService,
   ) {}
+  
   @Get()
   async findAll() {
     return this.doctorService.findAll();
@@ -48,10 +53,37 @@ export class DoctorController {
     return await this.appointmentService.cancelAppointment(id, true);
   }
 
+  @Roles(Role.DOCTOR)
+  @Post(':appointmentId/prescription/issue')
+  async issuePrescription(
+    @Param('appointmentId') appointmentId: string,
+    @Body() prescriptionDto: IssuePrescriptionDto,
+  ) {
+    try {
+      if (!appointmentId) {
+        throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+      }
 
-  @Post('prescription/issue')
-  async issuePrescription() {
-    return this.doctorService.issuePrescription();
+      const appointment = await this.prisma.appointment.findUnique({
+        where: {
+          id: appointmentId,
+        },
+      });
+
+      if (!appointment) {
+        throw new HttpException(
+          'Error processing request',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      return this.doctorService.issuePrescription(
+        prescriptionDto,
+        appointmentId,
+      );
+    } catch (error) {
+      console.error('Error saving prescription');
+      throw error;
+    }
   }
-
 }

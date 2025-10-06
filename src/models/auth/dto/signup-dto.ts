@@ -1,5 +1,6 @@
 import { Role } from 'generated/prisma';
-import { IsEnum, IsString, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsString, IsNotEmpty, IsOptional } from 'class-validator';
+
 
 export class SignUpDto {
   @IsString()
@@ -10,13 +11,9 @@ export class SignUpDto {
   @IsNotEmpty()
   password: string;
 
-  @IsEnum([Role])
+  @IsEnum(Role)
   @IsNotEmpty()
   role: Role;
-
-  @IsString()
-  @IsNotEmpty()
-  fullName: string;
 
   @IsString()
   @IsNotEmpty()
@@ -27,8 +24,10 @@ export class SignUpDto {
   lastName: string;
 
   @IsString()
+  @IsOptional()
   departmentId?: string;
 
   @IsString()
+  @IsOptional()
   specialization?: string;
 }

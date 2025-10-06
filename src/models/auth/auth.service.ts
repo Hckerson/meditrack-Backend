@@ -66,6 +66,7 @@ export class AuthService {
       departmentId,
       specialization,
     } = signUpDto;
+
     if (!email || !password || !role) {
       this.logger.error(`Email or password not provided`);
       throw new AuthError(
@@ -103,17 +104,24 @@ export class AuthService {
         case 'ADMIN':
           break;
         case 'DOCTOR':
-          const dept: Record<string, any> = {};
-          dept.Department = {
+          const doctor: Record<string, any> = {};
+          doctor.Department = {
             connect: {
               id: departmentId,
             },
           };
-          dept.specialization = specialization;
-          roleType.Doctor = dept;
-
+          doctor.specialization = specialization;
+          roleType.Doctor = doctor;
           break;
         case 'NURSE':
+          const nurse: Record<string, any> = {};
+          nurse.Department = {
+            connect: {
+              id: departmentId,
+            },
+          };
+          nurse.specialization = specialization;
+          roleType.Nurse = nurse;
           break;
       }
 
@@ -122,9 +130,10 @@ export class AuthService {
           email: email.toLowerCase(),
           password: hashedPassword,
           provider: 'local',
-          firstName,
-          lastName,
+          firstName: firstName.toLowerCase(),
+          lastName: lastName.toLowerCase(),
           role: [role],
+          ...roleType,
         },
       });
 
@@ -164,6 +173,8 @@ export class AuthService {
         },
         EmailType.VERIFY_EMAIL,
       );
+
+      // create medical record for patients
 
       return { success: true, message: 'signup successful' };
     } catch (error) {
@@ -211,7 +222,6 @@ export class AuthService {
         fingerprint,
       };
 
-      console.log(request.session.user);
       request.session.cookie.maxAge = sessionTTL;
 
       // send login-alert email
