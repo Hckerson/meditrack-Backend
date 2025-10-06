@@ -1,11 +1,11 @@
 import { PrismaService } from 'src/prisma/prisma.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { createMedicalRecordDto } from './dto/create-medicalrecord.dto';
 
 @Injectable()
 export class PatientService {
+  private readonly logger: Logger = new Logger(PatientService.name);
   constructor(private readonly prisma: PrismaService) {}
-
 
   async fetchAllMedicalRecords(userId: string) {
     try {
@@ -38,11 +38,15 @@ export class PatientService {
       });
       return records;
     } catch (error) {
-      console.error('Error fetching patient medical records');
+      this.logger.error('Error fetching patient medical records');
       throw error;
     }
   }
 
+  async createMedicalRecord(medicalRecordDto: createMedicalRecordDto) {
+    try {
+    } catch (error) {}
+  }
 }
 
 //add remailnig record model props

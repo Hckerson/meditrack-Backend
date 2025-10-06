@@ -104,23 +104,23 @@ export class AuthService {
         case 'ADMIN':
           break;
         case 'DOCTOR':
-          const doctor: Record<string, any> = {};
-          doctor.Department = {
+          const doctor: Record<string, any> = { create: {} };
+          doctor.create.Department = {
             connect: {
               id: departmentId,
             },
           };
-          doctor.specialization = specialization;
+          doctor.create.specialization = specialization as string;
           roleType.Doctor = doctor;
           break;
         case 'NURSE':
-          const nurse: Record<string, any> = {};
-          nurse.Department = {
+          const nurse: Record<string, any> = { create: {} };
+          nurse.create.Department = {
             connect: {
               id: departmentId,
             },
           };
-          nurse.specialization = specialization;
+          nurse.create.specialization = specialization as string;
           roleType.Nurse = nurse;
           break;
       }
@@ -190,6 +190,7 @@ export class AuthService {
    * @returns -Resoves an object with a message and an HTTP status code
    */
   async login(loginDto: LoginDto, request: Request) {
+    const ua = request.headers['user-agent'];
     try {
       if (!loginDto.password || !loginDto.email)
         throw new AuthError('Incomplete credentials', HttpStatus.BAD_REQUEST);
@@ -228,6 +229,7 @@ export class AuthService {
       await this.triggerEmailSending(
         {
           to: email,
+          ua,
         },
         EmailType.LOGIN_ALERT,
       );

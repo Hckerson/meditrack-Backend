@@ -22,10 +22,17 @@ export class DoctorService {
           id: appointmentId,
         },
         select:{
-          Record: true
+          Record: true,
+          patientId: true
         }
       });
 
+      if(!appointment){
+        throw new HttpException('Error processing request', HttpStatus.BAD_REQUEST)
+      }
+
+      const {patientId} = appointment
+      
       if (!appointment?.Record) {
         // await this.prisma.record.create({
         //   data:{
