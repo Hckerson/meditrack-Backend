@@ -18,10 +18,7 @@ export class PatientService {
       });
 
       if (!patient) {
-        throw new HttpException(
-          'Invalid user provided',
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new HttpException('Invalid user', HttpStatus.BAD_REQUEST);
       }
 
       const { id } = patient;
@@ -43,10 +40,35 @@ export class PatientService {
     }
   }
 
-  async createMedicalRecord(medicalRecordDto: createMedicalRecordDto) {
+  async createMedicalRecord(
+    medicalRecordDto: createMedicalRecordDto,
+    userId: string,
+  ) {
     try {
-    } catch (error) {}
+      // find patient with the id
+
+      const patient = await this.prisma.patient.findUnique({
+        where: {
+          userId,
+        },
+      });
+
+      if (!patient) {
+        throw new HttpException(
+          'Invalid user',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      const { id } = patient;
+
+      await this.prisma.medicalRecord.create({
+        data: { ...medicalRecordDto, patientId: id },
+      });
+
+      return { success: true, message: 'Medical record successfully created' };
+    } catch (error) {
+      this.logger.log('Error creating medical record', error);
+      throw error;
+    }
   }
 }
-
-//add remailnig record model props

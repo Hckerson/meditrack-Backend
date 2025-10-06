@@ -26,7 +26,8 @@ export class PatientController {
   }
 
   @Post('medicalrecord/create')
-  async createMedicalRecord(@Body() medicalRecordDto: createMedicalRecordDto) {
-    return this.patientService.createMedicalRecord(medicalRecordDto);
+  async createMedicalRecord(@Body() medicalRecordDto: createMedicalRecordDto, @User('id') id: string) {
+
+    return this.patientService.createMedicalRecord(medicalRecordDto, id);
   }
 }

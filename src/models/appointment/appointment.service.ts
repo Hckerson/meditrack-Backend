@@ -207,6 +207,8 @@ export class AppointmentService {
       if (response.success) {
         // create audit logs
       }
+
+      return { success: true, message: 'Appointment successfully rescheduled' };
     } catch (error) {
       this.logger.error('Failed to reshedule appointment', error);
       throw error;

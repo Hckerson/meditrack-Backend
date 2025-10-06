@@ -5,7 +5,7 @@ import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class DoctorService {
-  private readonly logger:Logger = new Logger(DoctorService.name)
+  private readonly logger: Logger = new Logger(DoctorService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll() {
@@ -21,28 +21,42 @@ export class DoctorService {
         where: {
           id: appointmentId,
         },
-        select:{
+        select: {
           Record: true,
-          patientId: true
-        }
+          Patient: {
+            select: {
+              MedicalRecord: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
       });
 
-      if(!appointment){
-        throw new HttpException('Error processing request', HttpStatus.BAD_REQUEST)
+      if (!appointment || !appointment.Patient.MedicalRecord) {
+        throw new HttpException(
+          'Error processing request',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
 
-      const {patientId} = appointment
-      
+      const {
+        Patient: {
+          MedicalRecord: { id },
+        },
+      } = appointment;
+
       if (!appointment?.Record) {
         // await this.prisma.record.create({
         //   data:{
-
         //   }
         // })
       }
     } catch (error) {
       this.logger.error('Error issuing prescription');
-      throw(error)
+      throw error;
     }
   }
 

@@ -112,16 +112,16 @@ model Department {
 }
 
 model Doctor {
-  id             String          @id @default(uuid())
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt()
+  id             String         @id @default(uuid())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt()
   Appointment    Appointment[]
-  Department     Department      @relation(fields: [departmentId], references: [id])
-  MedicalRecord  MedicalRecord[]
+  Department     Department     @relation(fields: [departmentId], references: [id])
+  Record         Record[]
   Prescription   Prescription[]
   specialization String
-  User           User            @relation(fields: [userId], references: [id])
-  userId         String          @unique
+  User           User           @relation(fields: [userId], references: [id])
+  userId         String         @unique
   departmentId   String
 }
 
@@ -146,13 +146,10 @@ model MedicalRecord {
   id        String   @id @default(uuid())
   Patient   Patient  @relation(fields: [patientId], references: [id])
   patientId String   @unique
-  storageId String
   phone     String
   address   String
   gender    String
   version   String
-  Doctor    Doctor   @relation(fields: [doctorId], references: [id])
-  doctorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
   Record    Record[]
@@ -196,6 +193,9 @@ model Record {
   id              String        @id @default(uuid())
   medicalRecordId String
   appointmentId   String        @unique
+  storageId       String?
+  Doctor          Doctor        @relation(fields: [doctorId], references: [id])
+  doctorId        String
   Appointment     Appointment   @relation(fields: [appointmentId], references: [id])
   MedicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id])
   Prescription    Prescription?
