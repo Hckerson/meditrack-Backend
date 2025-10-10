@@ -1,5 +1,5 @@
-import { Route } from 'generated/prisma';
-import { IsString, IsNotEmpty } from 'class-validator';
+import { Route, Form } from 'generated/prisma';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 
 export class IssuePrescriptionDto {
   @IsString()
@@ -10,11 +10,11 @@ export class IssuePrescriptionDto {
   @IsNotEmpty()
   dosage: string;
 
-  @IsString()
+  @IsEnum(Form)
   @IsNotEmpty()
-  form: string;
+  form: Form;
 
-  @IsString()
+  @IsEnum(Route)
   @IsNotEmpty()
   route: Route[];
 
@@ -22,4 +22,7 @@ export class IssuePrescriptionDto {
   @IsNotEmpty()
   note: string;
 
+  @IsString()
+  @IsNotEmpty()
+  amount: string;
 }

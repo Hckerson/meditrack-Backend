@@ -24,30 +24,30 @@ export class DoctorService {
         },
         select: {
           Record: true,
-          Patient: {
-            select: {
-              MedicalRecord: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-          },
         },
       });
 
-      if (!appointment || !appointment.Patient.MedicalRecord) {
+      if (!appointment || !appointment.Record) {
         throw new HttpException(
           'Error processing request',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
 
-      const {
-        Patient: {
-          MedicalRecord: { id },
+      const { Record } = appointment;
+
+      const { id: recordId } = Record;
+
+      // issue prescription
+
+      await this.prisma.medication.create({
+        data: {
+          ...prescriptionDto,
+          recordId,
         },
-      } = appointment;
+      });
+
+      return { success: true, message: 'Prescription issued successfully' };
     } catch (error) {
       this.logger.error('Error issuing prescription');
       throw error;
@@ -91,7 +91,7 @@ export class DoctorService {
 
       if (!doctor) {
         throw new HttpException(
-          "Couldn't process requet",
+          'error processing request',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
