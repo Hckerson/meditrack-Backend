@@ -50,7 +50,6 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() signUpDto: SignUpDto) {
-    // generate verification link
 
     return this.authService.signUp(signUpDto);
   }

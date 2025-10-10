@@ -8,6 +8,7 @@ export class DepartmentService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createDepartment(createDeptDto: CreateDeptDto) {
+    this.logger.log('Creating department')
     try {
       await this.prisma.department.create({
         data: createDeptDto,

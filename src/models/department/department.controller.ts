@@ -1,8 +1,8 @@
-import { Request } from 'express';
+
 import { Role } from 'generated/prisma';
 import { CreateDeptDto } from './dto/create-dept.dto';
 import { DepartmentService } from './department.service';
-import { Get, Post, Req, Controller, Body } from '@nestjs/common';
+import { Post, Controller, Body } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Roles(Role.ADMIN)
@@ -10,7 +10,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
 
-  @Post()
+  @Post('create')
   async create(
     @Body()
     createDeptDto: CreateDeptDto,

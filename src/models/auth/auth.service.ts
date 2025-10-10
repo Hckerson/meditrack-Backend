@@ -102,6 +102,7 @@ export class AuthService {
 
       switch (role) {
         case 'ADMIN':
+
           break;
         case 'DOCTOR':
           const doctor: Record<string, any> = { create: {} };
@@ -563,6 +564,7 @@ export class AuthService {
     options: MailOpts,
     type: 'welcome' | 'reset-password' | 'login-alert' | 'verify-email',
   ) {
+    console.log(options, type)
     try {
       const response = await this.email.initializeEmailSender(options, type);
       if (!response.success) {
