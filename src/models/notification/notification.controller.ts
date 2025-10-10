@@ -6,10 +6,6 @@ import { NotifyDoctorDto } from './dto/doctor-notification.dto';
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  @Get()
-  findAll(@Body() notifyDoctorDto: NotifyDoctorDto) {
-    return this.notificationService.notifyDoctorUsingId(notifyDoctorDto);
-  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

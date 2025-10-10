@@ -10,7 +10,6 @@ import { AuthModule } from './models/auth/auth.module';
 import dbConfig from './config/database/configuration';
 import emailConfig from './config/email/configuration';
 import { RolesGuard } from './common/guards/roles.guard';
-import { NurseModule } from './models/nurse/nurse.module';
 import { AdminModule } from './models/admin/admin.module';
 import sessionConfig from './config/session/configuration';
 import { DoctorModule } from './models/doctor/doctor.module';
@@ -35,7 +34,6 @@ import { DepartmentModule } from './models/department/department.module';
       ],
     }),
     AdminModule,
-    NurseModule,
     PrismaModule,
     DoctorModule,
     PatientModule,

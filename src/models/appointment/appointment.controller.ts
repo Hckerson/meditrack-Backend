@@ -45,16 +45,6 @@ export class AppointmentController {
     return await this.appointmentService.cancelAppointment(id);
   }
 
-  @Get()
-  async findAll() {
-    return this.appointmentService.findAllAppointments();
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.appointmentService.findOneAppointment(+id);
-  }
-
   @Patch(':id/reschedule')
   async update(
     @Param('id') id: string,

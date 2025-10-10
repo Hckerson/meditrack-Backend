@@ -158,14 +158,6 @@ export class AppointmentService {
     }
   }
 
-  async findAllAppointments() {
-    return `This action returns all appointment`;
-  }
-
-  async findOneAppointment(id: number) {
-    return `This action returns a #${id} appointment`;
-  }
-
   async rescheduleAppointment(
     appointmentId: string,
     rescheduleAppointmentDto: RescheduleAppointmentDto,
@@ -202,26 +194,10 @@ export class AppointmentService {
         data: update,
       });
 
-      const response = await this.notification.notifyDoctorUsingId(
-        {
-          doctorId,
-          patientId,
-        },
-        EmailType.RESCHEDULE_APPOINTMENT,
-      );
-
-      if (response.success) {
-        // create audit logs
-      }
-
       return { success: true, message: 'Appointment successfully rescheduled' };
     } catch (error) {
       this.logger.error('Failed to reshedule appointment', error);
       throw error;
     }
-  }
-
-  async removeAppointment(id: number) {
-    return `This action removes a #${id} appointment`;
   }
 }
