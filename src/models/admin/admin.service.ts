@@ -1,17 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AdminService {
+  constructor (private readonly prisma : PrismaService){}
+
+
   create(createAdminDto: CreateAdminDto) {
     return 'This action adds a new admin';
   }
 
-  findAll() {
-    return `This action returns all admin`;
+  async findAll() {
+    try {
+      const allAdmins = await this.prisma.admin.findMany()
+      if(!allAdmins){
+        return []
+      }
+      return allAdmins
+    } catch (error) {
+      console.error('Error finding all admins')
+      throw error
+    }
   }
-
   findOne(id: number) {
     return `This action returns a #${id} admin`;
   }

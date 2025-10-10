@@ -9,6 +9,7 @@ const {
   resetPassword,
   loginAlert,
   verifyEmail,
+  cancelAppointment,
   doctorNotification,
 } = EmailTemplates;
 
@@ -16,13 +17,15 @@ export interface MailOpts {
   to?: string;
   ua?: string;
   name?: string;
+  reason?: string;
   action?: string;
   timeISO?: string;
-  patientId?: string;
   dateTime?: string;
+  patientId?: string;
   resetLink?: string;
   appointmentLink?: string;
   verificationLink?: string;
+  cancelledBy?: 'doctor' | 'patient' | 'system';
 }
 
 interface Template {
@@ -61,8 +64,17 @@ export class EmailSendService implements OnModuleInit {
       | 'cancel-appointment'
       | 'reschedule-appointment',
   ) {
-    const { resetLink, ua, verificationLink, to, name, patientId, dateTime } =
-      mail;
+    const {
+      resetLink,
+      ua,
+      verificationLink,
+      to,
+      name,
+      patientId,
+      dateTime,
+      appointmentLink,
+      cancelledBy,
+    } = mail;
     const params: MailOpts = {};
     let template: Template = { subject: '', html: '', text: '' };
 
@@ -73,32 +85,32 @@ export class EmailSendService implements OnModuleInit {
         break;
       case 'reset-password':
         params.resetLink = resetLink;
-        template = resetPassword(params as { resetLink: string });
+        template = resetPassword(params);
         break;
       case 'login-alert':
-        params.timeISO = new Date().toISOString();
         params.ua = ua;
-        template = loginAlert(params as { timeISO: string; ua?: string });
+        template = loginAlert(params);
+        params.timeISO = new Date().toISOString();
         break;
       case 'verify-email':
+        template = verifyEmail(params);
         params.verificationLink = verificationLink;
-        template = verifyEmail(params as { verificationLink: string });
+        params.name = to?.toString().split('@')[0];
         break;
       case 'book-appointment':
         params.name = name;
-        params.patientId = patientId;
         params.dateTime = dateTime;
-        params.appointmentLink = '';
-        params.action = type.split('-')[0];
-        template = doctorNotification(
-          params as {
-            name: string;
-            patientId: string;
-            dateTime: string;
-            action: string;
-            appointmentLink: string;
-          },
-        );
+        params.patientId = patientId;
+        params.appointmentLink = appointmentLink;
+        template = doctorNotification(params);
+      case 'cancel-appointment':
+        params.name = name;
+        params.dateTime = dateTime;
+        params.dateTime = dateTime;
+        params.patientId = patientId;
+        params.cancelledBy = cancelledBy;
+        params.appointmentLink = appointmentLink;
+        template = cancelAppointment(params)
     }
     return this.sendEmail({ ...mail, ...template });
   }

@@ -31,6 +31,7 @@ export class DoctorController {
     private readonly appointmentService: AppointmentService,
   ) {}
 
+  @Roles(Role.ADMIN)
   @Get()
   async findAll() {
     return this.doctorService.findAll();

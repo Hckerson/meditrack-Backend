@@ -9,10 +9,27 @@ export class DoctorService {
   private readonly logger: Logger = new Logger(DoctorService.name);
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Find all available doctor
+   * @returns a list of doctors if any is found and an empty array if none is foundd
+   */
   async findAll() {
-    return `This action returns all doctor`;
+    try {
+      const alldoctors = await this.prisma.doctor.findMany();
+      if (!alldoctors) return [];
+      return alldoctors;
+    } catch (error) {
+      console.error('Error fetching all doctors');
+      throw error;
+    }
   }
 
+  /**
+   * Records prescription issued to patients
+   * @param prescriptionDto - Payload containing prescription details
+   * @param appointmentId - ID of the appointment
+   * @returns 
+   */
   async issuePrescription(
     prescriptionDto: IssuePrescriptionDto,
     appointmentId: string,

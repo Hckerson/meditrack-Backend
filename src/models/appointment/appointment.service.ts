@@ -63,10 +63,16 @@ export class AppointmentService {
             },
           });
 
-          // finally book the appointment
-          let appointment: Appointment;
+          if (!hold) {
+            throw new HttpException(
+              'error processing request',
+              HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+          }
 
-          appointment = await tx.appointment.create({
+          // finally book the appointment
+
+          await tx.appointment.create({
             data: {
               patientId,
               doctorId,
@@ -87,10 +93,9 @@ export class AppointmentService {
             EmailType.BOOK_APPONTMENT,
           );
 
-          
           return {
             success: true,
-            data: appointment,
+            message: 'Appointment created successfully',
           };
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
@@ -124,7 +129,7 @@ export class AppointmentService {
 
       if (!appointment) {
         throw new HttpException(
-          'Failed to book appointment',
+          'error processing request',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -137,7 +142,6 @@ export class AppointmentService {
         // notify patient
       } else {
         // notify doctor then
-
         await this.notification.notifyDoctorUsingId(
           {
             doctorId,
