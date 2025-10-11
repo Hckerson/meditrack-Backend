@@ -61,6 +61,7 @@ export class AuthService {
       email,
       password,
       role,
+      provider,
       firstName,
       lastName,
       departmentId,
@@ -130,7 +131,7 @@ export class AuthService {
         data: {
           email: email.toLowerCase(),
           password: hashedPassword,
-          provider: 'local',
+          provider: provider,
           firstName: firstName.toLowerCase(),
           lastName: lastName.toLowerCase(),
           role: [role],
@@ -564,7 +565,7 @@ export class AuthService {
     options: MailOpts,
     type: 'welcome' | 'reset-password' | 'login-alert' | 'verify-email',
   ) {
-    console.log(options, type)
+
     try {
       const response = await this.email.initializeEmailSender(options, type);
       if (!response.success) {

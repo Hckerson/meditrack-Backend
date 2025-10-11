@@ -89,13 +89,13 @@ export class EmailSendService implements OnModuleInit {
         break;
       case 'login-alert':
         params.ua = ua;
-        template = loginAlert(params);
         params.timeISO = new Date().toISOString();
+        template = loginAlert(params);
         break;
       case 'verify-email':
-        template = verifyEmail(params);
         params.verificationLink = verificationLink;
         params.name = to?.toString().split('@')[0];
+        template = verifyEmail(params);
         break;
       case 'book-appointment':
         params.name = name;

@@ -175,10 +175,11 @@ model Nurse {
   updatedAt      DateTime   @updatedAt()
   Department     Department @relation(fields: [departmentId], references: [id])
   specialization String
-  User           User       @relation(fields: [userId], references: [id])
+  User           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         String     @unique
   departmentId   String
 }
+
 
 model Patient {
   id            String         @id @default(uuid())
@@ -187,6 +188,7 @@ model Patient {
   Appointment   Appointment[]
   MedicalRecord MedicalRecord?
 }
+
 
 model Record {
   id              String        @id @default(uuid())
