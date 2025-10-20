@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 import { CreateDeptDto } from './dto/create-dept.dto';
 
 @Injectable()
 export class DepartmentService {
-  private readonly logger:Logger = new Logger(DepartmentService.name)
+  private readonly logger: Logger = new Logger(DepartmentService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -12,7 +12,7 @@ export class DepartmentService {
    * @returns - success or failure message
    */
   async createDepartment(createDeptDto: CreateDeptDto) {
-    this.logger.log('Creating department')
+    this.logger.log('Creating department');
     try {
       await this.prisma.department.create({
         data: createDeptDto,

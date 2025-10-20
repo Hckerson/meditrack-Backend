@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-
   /**
    * lookup all the admins within the administration
-   * @returns -Object containing list fo admins 
+   * @returns -Object containing list fo admins
    */
   async findAll() {
     try {

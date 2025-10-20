@@ -1,4 +1,4 @@
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { createMedicalRecordDto } from './dto/create-medicalrecord.dto';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
@@ -140,12 +140,10 @@ export class PatientService {
         // notify patient
       } else {
         // notify doctor then
-        await this.notification.notifyDoctorForCancellation(
-          {
-            doctorId,
-            patientId,
-          },
-        );
+        await this.notification.notifyDoctorForCancellation({
+          doctorId,
+          patientId,
+        });
       }
 
       return { success: true, message: 'Appointment cancelled successfully' };
@@ -154,7 +152,6 @@ export class PatientService {
       throw error;
     }
   }
-
 
   /**
    * Reschedule appointment  and notifies necssary participants
@@ -204,7 +201,6 @@ export class PatientService {
       throw error;
     }
   }
-
 
   /**
    * Create medical record for patient and store in database

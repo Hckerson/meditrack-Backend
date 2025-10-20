@@ -5,7 +5,7 @@ import {
   VerifyCallback,
 } from 'passport-google-oauth20';
 import { PassportStrategy, AuthModuleOptions } from '@nestjs/passport';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 /**
@@ -30,7 +30,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-      scope:['profile', 'email'],
+      scope: ['profile', 'email'],
     } as StrategyOptions);
 
     this.successRedirect =
@@ -57,7 +57,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
         email: email.toLowerCase(),
       },
     });
-    this.successRedirect = this.options['successdirect'] || `/auth/successRedirect/${email}`;
+    this.successRedirect =
+      this.options['successdirect'] || `/auth/successRedirect/${email}`;
     if (!user) {
       const user = await this.prisma.user.create({
         data: {

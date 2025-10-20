@@ -1,10 +1,10 @@
 import { randomBytes } from 'crypto';
-import { BASE_URL } from './constant';
+import { BASE_URL } from '../lib/constant';
 import { Logger } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User, VerificationType } from 'generated/prisma';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 
 @Injectable()
 export class LinkService {
@@ -58,7 +58,7 @@ export class LinkService {
       return {
         success: false,
         message: 'Failed to generate verification link',
-        data: null
+        data: null,
       };
     }
     return {

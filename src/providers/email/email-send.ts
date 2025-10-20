@@ -85,24 +85,31 @@ export class EmailSendService implements OnModuleInit {
         break;
       case 'reset-password':
         params.resetLink = resetLink;
-        template = resetPassword(params);
+        template = resetPassword(params as { resetLink: string });
         break;
       case 'login-alert':
         params.ua = ua;
         params.timeISO = new Date().toISOString();
-        template = loginAlert(params);
+        template = loginAlert(params as { timeISO: string; ua?: string });
         break;
       case 'verify-email':
         params.verificationLink = verificationLink;
         params.name = to?.toString().split('@')[0];
-        template = verifyEmail(params);
+        template = verifyEmail(params as { verificationLink: string });
         break;
       case 'book-appointment':
         params.name = name;
         params.dateTime = dateTime;
         params.patientId = patientId;
         params.appointmentLink = appointmentLink;
-        template = doctorNotification(params);
+        template = doctorNotification(
+          params as {
+            name: string;
+            patientId: string;
+            dateTime: string;
+            appointmentLink: string;
+          },
+        );
       case 'cancel-appointment':
         params.name = name;
         params.dateTime = dateTime;
@@ -110,7 +117,16 @@ export class EmailSendService implements OnModuleInit {
         params.patientId = patientId;
         params.cancelledBy = cancelledBy;
         params.appointmentLink = appointmentLink;
-        template = cancelAppointment(params)
+        template = cancelAppointment(
+          params as {
+            name: string; // Doctor's name
+            patientId: string; // Patient identifier
+            dateTime: string; // Original appointment date/time
+            reason?: string; // Optional cancellation reason
+            appointmentLink: string; // Link to view or reschedule
+            cancelledBy: 'doctor' | 'patient' | 'system'; // Who initiated the cancel
+          },
+        );
     }
     return this.sendEmail({ ...mail, ...template });
   }

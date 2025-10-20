@@ -14,7 +14,7 @@ import { Role } from 'generated/prisma';
 import { DoctorService } from './doctor.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { FilterDoctorDto } from './dto/filter-doctor.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { PatientService } from '../patient/patient.service';
 import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
@@ -100,6 +100,6 @@ export class DoctorController {
       throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
     }
 
-    return this.doctorService.createRecord(recordDto, appointmentId)
+    return this.doctorService.createRecord(recordDto, appointmentId);
   }
 }

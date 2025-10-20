@@ -1,13 +1,12 @@
 import axios from 'axios';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Strategy, StrategyOptions, Profile } from 'passport-github';
 import { PassportStrategy, AuthModuleOptions } from '@nestjs/passport';
 
-
 /**
  * Github strategy for authentication
- * 
+ *
  */
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
@@ -15,14 +14,13 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   public failureRedirect: string;
 
   /**
-   * 
+   *
    * @param prisma -prisma object used to communicate with database
    * @param options -Additonal options for authentication
    */
   constructor(
     private readonly prisma: PrismaService,
     private readonly options: AuthModuleOptions,
-
   ) {
     /**Credential required by the github passport package */
     super({
@@ -58,7 +56,8 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
       (e: { primary: boolean }) => e.primary === true,
     );
     const { email, verified } = primary;
-      this.successRedirect = this.options['successdirect'] || `/auth/successRedirect/${email}`;
+    this.successRedirect =
+      this.options['successdirect'] || `/auth/successRedirect/${email}`;
     const user = await this.prisma.user.findUnique({
       where: {
         email: email.toLowerCase(),
@@ -74,7 +73,6 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
           provider: provider,
         },
       });
-
     } else if (user) {
       const { provider, email } = user;
       if (provider !== 'github')

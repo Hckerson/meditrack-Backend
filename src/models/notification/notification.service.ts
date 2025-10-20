@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { EmailType } from 'src/enums/email.enums';
 import { NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { EmailSendService } from 'src/lib/services/email/email-send';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
+import { EmailSendService } from 'src/providers/email/email-send';
 import { NotifyDoctorDto } from './dto/doctor-notification.dto';
 
 @Injectable()

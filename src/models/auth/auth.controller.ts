@@ -1,10 +1,10 @@
 import { LoginDto } from './dto/login-dto';
 import { Response, Request } from 'express';
-import { LinkService } from 'src/lib/links.service';
+import { LinkService } from 'src/services/links.service';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/signup-dto';
 import { VerificationType } from 'generated/prisma';
-import { SpeakeasyService } from 'src/lib/speakesy.service';
+import { SpeakeasyService } from 'src/services/speakesy.service';
 import { ResetPasswordDto } from './dto/reset-password-dto';
 import { LocalAuthGuard } from './services/passport/guards/local-auth.guard';
 import { GithubAuthGuard } from './services/passport/guards/github-auth.guard';
@@ -50,7 +50,6 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() signUpDto: SignUpDto) {
-
     return this.authService.signUp(signUpDto);
   }
 
@@ -78,11 +77,14 @@ export class AuthController {
       VerificationType.PASSWORD_RESET,
     );
 
-    if(!verificationData.data){
-      throw new HttpException('Failed to generate verification link', HttpStatus.INTERNAL_SERVER_ERROR)
+    if (!verificationData.data) {
+      throw new HttpException(
+        'Failed to generate verification link',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
-    const verificationLink = verificationData.data
+    const verificationLink = verificationData.data;
 
     return await this.authService.sendResetPasswordLink(
       email,

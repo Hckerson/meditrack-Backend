@@ -4,8 +4,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { QrcodeService } from './qr-code';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { QrcodeService } from '../lib/qr-code';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 
 @Injectable()
 export class SpeakeasyService {

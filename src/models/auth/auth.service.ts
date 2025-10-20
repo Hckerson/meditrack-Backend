@@ -4,11 +4,11 @@ import { LoginDto } from './dto/login-dto';
 import { Request, Response } from 'express';
 import { SignUpDto } from './dto/signup-dto';
 import { EmailType } from 'src/enums/email.enums';
-import { LinkService } from 'src/lib/links.service';
+import { LinkService } from 'src/services/links.service';
 import { SignJWT, jwtVerify, JWTPayload } from 'jose';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 import { User, VerificationCodes, VerificationType } from 'generated/prisma';
-import { EmailSendService, MailOpts } from 'src/lib/services/email/email-send';
+import { EmailSendService, MailOpts } from 'src/providers/email/email-send';
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import { AuthError } from './errors/auth-error';
 
@@ -103,11 +103,9 @@ export class AuthService {
 
       switch (role) {
         case 'ADMIN':
-          const admin: Record<string, any> = {create :{} };
-          admin.create = {
-            
-          }
-          roleType.Admin = admin
+          const admin: Record<string, any> = { create: {} };
+          admin.create = {};
+          roleType.Admin = admin;
           break;
         case 'DOCTOR':
           const doctor: Record<string, any> = { create: {} };

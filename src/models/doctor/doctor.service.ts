@@ -1,5 +1,5 @@
 import { FilterDoctorDto } from './dto/filter-doctor.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateRecordDto } from './dto/create-record.dto';
