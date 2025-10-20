@@ -29,15 +29,6 @@ export class PatientController {
     private readonly patientService: PatientService,
   ) {}
 
-  
-  @Get('record/all')
-  async findAllRecord(@User('id') id: string) {
-    if (!id) {
-      throw new HttpException('Unauthorized action', HttpStatus.UNAUTHORIZED);
-    }
-    return this.patientService.fetchAllMedicalRecords(id);
-  }
-
   @Post('medicalrecord/create')
   async createMedicalRecord(
     @Body() medicalRecordDto: createMedicalRecordDto,

@@ -198,38 +198,6 @@ export class PatientService {
     }
   }
 
-  async fetchAllMedicalRecords(userId: string) {
-    try {
-      // find patient with this id
-
-      const patient = await this.prisma.patient.findUnique({
-        where: {
-          userId,
-        },
-      });
-
-      if (!patient) {
-        throw new HttpException('Invalid user', HttpStatus.BAD_REQUEST);
-      }
-
-      const { id } = patient;
-
-      // get patient records
-      const records = await this.prisma.patient.findUnique({
-        where: {
-          id,
-        },
-        include: {
-          Appointment: true,
-          MedicalRecord: true,
-        },
-      });
-      return records;
-    } catch (error) {
-      this.logger.error('Error fetching patient medical records');
-      throw error;
-    }
-  }
 
   async createMedicalRecord(
     medicalRecordDto: createMedicalRecordDto,

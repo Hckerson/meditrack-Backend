@@ -9,7 +9,7 @@ export class RecordService {
    * @param patientId - id of the patient being looked up
    */
 
-  async fetchIndividualRecords(patientId: string) {
+  async fetchPatientRecords(patientId: string) {
     try {
       const search = await this.prisma.patient.findUnique({
         where: {
@@ -48,9 +48,9 @@ export class RecordService {
    * @param id - Patient identifier
    * @param recordId - Record identifier
    */
-  async fetchIndividualRecord(id: string, recordId: string) {
+  async fetchPatientRecord(id: string, recordId: string) {
     try {
-      const records = await this.fetchIndividualRecords(id);
+      const records = await this.fetchPatientRecords(id);
 
       if (records.success && records.data?.length > 0) {
         // filter records to find specific record
@@ -59,12 +59,10 @@ export class RecordService {
             (record) => record.id == recordId,
           );
 
-          if(!exactRecord){
-            return {success: false, message: 'Record not found', data: null}
-
+          if (!exactRecord) {
+            return { success: false, message: 'Record not found', data: null };
           }
-          return {success: true, message: 'Record found', data: exactRecord}
-
+          return { success: true, message: 'Record found', data: exactRecord };
         } catch (error) {
           console.error('Error filtering records');
           throw error;
@@ -73,6 +71,22 @@ export class RecordService {
     } catch (error) {
       console.error('Error fetching  record', error);
       throw error;
+    }
+  }
+
+  async fetchAllRecords(userId: string) {
+    try {
+      await this.fetchPatientRecords(userId);
+    } catch (error) {
+      console.error('Error fetching individual record');
+    }
+  }
+
+  async fetchRecordById(userId: string, recordId: string) {
+    try {
+      await this.fetchPatientRecord(userId, recordId);
+    } catch (error) {
+      console.error(`Error finding record ${recordId}`, error);
     }
   }
 }
