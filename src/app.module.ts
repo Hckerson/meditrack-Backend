@@ -16,6 +16,7 @@ import { DoctorModule } from './models/doctor/doctor.module';
 import { PatientModule } from './models/patient/patient.module';
 import { NotificationModule } from './models/notification/notification.module';
 import { DepartmentModule } from './models/department/department.module';
+import { RecordModule } from './models/record/record.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { DepartmentModule } from './models/department/department.module';
     PatientModule,
     NotificationModule,
     DepartmentModule,
+    RecordModule,
   ],
   controllers: [AppController],
   providers: [

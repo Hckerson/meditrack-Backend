@@ -20,6 +20,8 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
 import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
 import { createMedicalRecordDto } from './dto/create-medicalrecord.dto';
+
+
 @Roles(Role.PATIENT)
 @Controller('patient')
 export class PatientController {
@@ -27,6 +29,7 @@ export class PatientController {
     private readonly patientService: PatientService,
   ) {}
 
+  
   @Get('record/all')
   async findAllRecord(@User('id') id: string) {
     if (!id) {
@@ -43,7 +46,7 @@ export class PatientController {
     return this.patientService.createMedicalRecord(medicalRecordDto, id);
   }
 
-  @Post('book')
+  @Post('book/appointment')
   async create(@Body() bookAppointmentDto: BookAppointmentDto) {
     const response =
       await this.patientService.bookAppointment(bookAppointmentDto);
@@ -53,7 +56,7 @@ export class PatientController {
     return { success: true, message: 'Appointment booked successfully' };
   }
 
-  @Get(':id/cancel')
+  @Get(':id/cancel/appointment')
   async cancel(@Req() req: Request, @Param() id: string) {
     // extract user from request
     const { user } = req.session;
@@ -64,7 +67,7 @@ export class PatientController {
     return await this.patientService.cancelAppointment(id);
   }
 
-  @Patch(':id/reschedule')
+  @Patch(':id/reschedule/appointment')
   async update(
     @Param('id') id: string,
     @Body() rescheduleAppointmentDto: RescheduleAppointmentDto,

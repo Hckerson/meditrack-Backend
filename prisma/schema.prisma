@@ -75,7 +75,7 @@ model Appointment {
   updatedAt     DateTime  @updatedAt()
   Billing       Billing[]
   Record        Record?
-
+  
   @@unique([doctorId, dateTime])
   @@index([dateTime(sort: Asc)])
 }
