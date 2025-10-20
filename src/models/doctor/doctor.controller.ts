@@ -18,7 +18,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { FilterDoctorDto } from './dto/filter-doctor.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { AppointmentService } from '../appointment/appointment.service';
+import { PatientService } from '../patient/patient.service';
 import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
 import { CreateRecordDto } from './dto/create-record.dto';
 
@@ -28,7 +28,7 @@ export class DoctorController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly doctorService: DoctorService,
-    private readonly appointmentService: AppointmentService,
+    private readonly patientService: PatientService,
   ) {}
 
   @Roles(Role.ADMIN)
@@ -56,7 +56,7 @@ export class DoctorController {
 
     if (!userId) throw new UnauthorizedException('Unauthorized action');
 
-    return await this.appointmentService.cancelAppointment(id, true);
+    return await this.patientService.cancelAppointment(id, true);
   }
 
   @Roles(Role.DOCTOR)

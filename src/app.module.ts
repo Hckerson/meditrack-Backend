@@ -14,7 +14,6 @@ import { AdminModule } from './models/admin/admin.module';
 import sessionConfig from './config/session/configuration';
 import { DoctorModule } from './models/doctor/doctor.module';
 import { PatientModule } from './models/patient/patient.module';
-import { AppointmentModule } from './models/appointment/appointment.module';
 import { NotificationModule } from './models/notification/notification.module';
 import { DepartmentModule } from './models/department/department.module';
 
@@ -37,7 +36,6 @@ import { DepartmentModule } from './models/department/department.module';
     PrismaModule,
     DoctorModule,
     PatientModule,
-    AppointmentModule,
     NotificationModule,
     DepartmentModule,
   ],
