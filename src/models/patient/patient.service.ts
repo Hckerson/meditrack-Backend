@@ -2,7 +2,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { createMedicalRecordDto } from './dto/create-medicalrecord.dto';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
-import { NotificationService } from '../notification/notification.service'
+import { NotificationService } from '../notification/notification.service';
 import { Appointment } from 'generated/prisma';
 import { Hold, Prisma } from 'generated/prisma';
 import { EmailType } from 'src/enums/email.enums';
@@ -85,14 +85,11 @@ export class PatientService {
           });
 
           // notify doctor
-          await this.notification.notifyDoctorUsingId(
-            {
-              patientId,
-              doctorId,
-              dateTime,
-            },
-            EmailType.BOOK_APPONTMENT,
-          );
+          await this.notification.notifyDoctorForAppointment({
+            patientId,
+            doctorId,
+            dateTime,
+          });
 
           return {
             success: true,
@@ -143,12 +140,11 @@ export class PatientService {
         // notify patient
       } else {
         // notify doctor then
-        await this.notification.notifyDoctorUsingId(
+        await this.notification.notifyDoctorForCancellation(
           {
             doctorId,
             patientId,
           },
-          EmailType.CANCEL_APPOINTMENT,
         );
       }
 

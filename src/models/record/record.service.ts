@@ -24,31 +24,55 @@ export class RecordService {
         },
       });
 
+      // return an empty array on successful search with zero records
       if (!search?.MedicalRecord) {
-        return { success: true, message: 'No records found', data: null };
+        return { success: false, message: 'No records found', data: [] };
       }
 
-      const { Record } = search?.MedicalRecord;
+      const recordsArray = search.MedicalRecord.Record;
+      const count = recordsArray.length;
 
-      return Record
+      return {
+        success: true,
+        message: `${count} record${count === 1 ? '' : 's'} found`,
+        data: recordsArray,
+      };
     } catch (error) {
       console.error('Error fetching patient record', error);
       throw error;
     }
   }
 
-
   /**
    * lookup specific record for a patient and return result on successful lookup
    * @param id - Patient identifier
    * @param recordId - Record identifier
    */
-  async fetchIndividualRecord(id: string, recordId: string){
+  async fetchIndividualRecord(id: string, recordId: string) {
     try {
-      
+      const records = await this.fetchIndividualRecords(id);
+
+      if (records.success && records.data?.length > 0) {
+        // filter records to find specific record
+        try {
+          const exactRecord = records.data.find(
+            (record) => record.id == recordId,
+          );
+
+          if(!exactRecord){
+            return {success: false, message: 'Record not found', data: null}
+
+          }
+          return {success: true, message: 'Record found', data: exactRecord}
+
+        } catch (error) {
+          console.error('Error filtering records');
+          throw error;
+        }
+      }
     } catch (error) {
-      console.error('Error fetching  record', error)
-      throw error
+      console.error('Error fetching  record', error);
+      throw error;
     }
   }
 }

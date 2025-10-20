@@ -8,7 +8,7 @@ import { Role } from 'generated/prisma';
 export class RecordController {
   constructor(private readonly recordService: RecordService) {}
 
-  @Roles(Role.PATIENT, Role.DOCTOR)
+  @Roles(Role.NURSE, Role.DOCTOR)
   @Get('patient/:id/all')
   async fetchIndividualRecords(@Param('id') id: string) {
     if (!id) {
@@ -18,7 +18,7 @@ export class RecordController {
     return this.recordService.fetchIndividualRecords(id);
   }
 
-  @Roles(Role.PATIENT, Role.DOCTOR)
+  @Roles(Role.NURSE, Role.DOCTOR)
   @Get('patient/:id/:recordId')
   async fetchIndividualRecord(
     @Param('id') id: string,

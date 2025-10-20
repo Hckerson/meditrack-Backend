@@ -64,6 +64,10 @@ export class DoctorService {
         },
       });
 
+      // notify patient
+
+      
+
       return { success: true, message: 'Prescription issued successfully' };
     } catch (error) {
       this.logger.error('Error issuing prescription');

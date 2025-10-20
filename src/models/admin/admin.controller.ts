@@ -15,8 +15,5 @@ export class AdminController {
   findAll() {
     return this.adminService.findAll();
   }
-  @Get()
-  findOne(){
-    return this.adminService.findOneById()
-  }
+
 }

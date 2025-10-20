@@ -7,45 +7,21 @@ import { NotifyDoctorDto } from './dto/doctor-notification.dto';
 
 @Injectable()
 export class NotificationService {
-  private readonly logger:Logger = new Logger(NotificationService.name)
+  private readonly logger: Logger = new Logger(NotificationService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailSendService,
   ) {}
 
-  findAll() {
-    return `This action returns all notification`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
-  }
   /**
-   * Helper function for sending notificaion to the doctor
+   * Notify doctor when new appointment are made
    * @param doctorId - ID of the doctor to be notified
    */
-  async notifyDoctorUsingId(
-    notifyDoctorDto: NotifyDoctorDto,
-    notificationType: EmailType,
-  ) {
+  async notifyDoctorForAppointment(notifyDoctorDto: NotifyDoctorDto) {
     const { doctorId, patientId, dateTime } = notifyDoctorDto;
     try {
-      // first find the doctor and retrieve his/ her email
-      const doctor = await this.prisma.doctor.findUnique({
-        where: {
-          id: doctorId,
-        },
-        select: {
-          User: true,
-        },
-      });
-
-      if (!doctor) {
-        throw new NotFoundException("Couldn't notify doctor");
-      }
-
-      // extract email
-      const { email, firstName } = doctor.User;
+      const doctorDetails = await this.fetchDoctorDetails(doctorId);
+      const { email, firstName } = doctorDetails;
 
       const response = await this.email.initializeEmailSender(
         {
@@ -54,7 +30,7 @@ export class NotificationService {
           patientId,
           dateTime,
         },
-        notificationType,
+        EmailType.BOOK_APPONTMENT,
       );
 
       if (!response.success) {
@@ -70,7 +46,58 @@ export class NotificationService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} notification`;
+  /**
+   * Notify doctor when appointments are cancelled
+   * @param notifyDoctorDto - Request object contining doctor and patient identifier
+   */
+  async notifyDoctorForCancellation(notifyDoctorDto: NotifyDoctorDto) {
+    const { doctorId, patientId, dateTime } = notifyDoctorDto;
+    try {
+      const doctorDetails = await this.fetchDoctorDetails(doctorId);
+      const { email, firstName } = doctorDetails;
+
+      const response = await this.email.initializeEmailSender(
+        {
+          to: email,
+          name: firstName,
+          patientId,
+          dateTime,
+        },
+        EmailType.CANCEL_APPOINTMENT,
+      );
+
+      if (!response.success) {
+        throw new HttpException(
+          'Failed to notfiy doctor',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      return { success: true, message: 'Doctor notified succssfully' };
+    } catch (error) {
+      this.logger.error('Error notifying doctor');
+      throw error;
+    }
+  }
+
+  async fetchDoctorDetails(doctorId: string) {
+    try {
+      // first find the doctor and retrieve his/ her email
+      const doctor = await this.prisma.doctor.findUnique({
+        where: {
+          id: doctorId,
+        },
+        select: {
+          User: true,
+        },
+      });
+
+      if (!doctor) {
+        throw new NotFoundException('Error notify doctor');
+      }
+      return doctor.User;
+    } catch (error) {
+      this.logger.error('Error notifying doctor');
+      throw error;
+    }
   }
 }
