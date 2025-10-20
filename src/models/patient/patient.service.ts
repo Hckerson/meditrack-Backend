@@ -155,6 +155,13 @@ export class PatientService {
     }
   }
 
+
+  /**
+   * Reschedule appointment  and notifies necssary participants
+   * @param appointmentId - ID of the appointment being resheduled
+   * @param rescheduleAppointmentDto - Request object containing info about the reschedule
+   * @returns - Success message on successful reshedule
+   */
   async rescheduleAppointment(
     appointmentId: string,
     rescheduleAppointmentDto: RescheduleAppointmentDto,
@@ -199,6 +206,12 @@ export class PatientService {
   }
 
 
+  /**
+   * Create medical record for patient and store in database
+   * @param medicalRecordDto - Request object containing information of the patient
+   * @param userId - ID of the patient
+   * @returns success message on successful creation
+   */
   async createMedicalRecord(
     medicalRecordDto: createMedicalRecordDto,
     userId: string,

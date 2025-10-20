@@ -7,6 +7,10 @@ export class DepartmentService {
   private readonly logger:Logger = new Logger(DepartmentService.name)
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Create departments and store in database
+   * @returns - success or failure message
+   */
   async createDepartment(createDeptDto: CreateDeptDto) {
     this.logger.log('Creating department')
     try {

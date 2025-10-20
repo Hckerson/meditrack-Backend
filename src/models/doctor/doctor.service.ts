@@ -28,7 +28,7 @@ export class DoctorService {
    * Records prescription issued to patients
    * @param prescriptionDto - Payload containing prescription details
    * @param appointmentId - ID of the appointment
-   * @returns 
+   * @returns - success response on successful issuance
    */
   async issuePrescription(
     prescriptionDto: IssuePrescriptionDto,
@@ -66,8 +66,6 @@ export class DoctorService {
 
       // notify patient
 
-      
-
       return { success: true, message: 'Prescription issued successfully' };
     } catch (error) {
       this.logger.error('Error issuing prescription');
@@ -77,6 +75,9 @@ export class DoctorService {
 
   /**
    * Create record of everything during and after the appointment
+   * @param recordDto - request data containing details of the appointment
+   * @param appointmentId - ID of the concluded appointment
+   * @returns  success response on successful creation and throws error on failure
    */
   async createRecord(recordDto: CreateRecordDto, appointmentId: string) {
     try {

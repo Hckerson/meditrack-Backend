@@ -5,6 +5,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
+
+  /**
+   * lookup all the admins within the administration
+   * @returns -Object containing list fo admins 
+   */
   async findAll() {
     try {
       const allAdmins = await this.prisma.admin.findMany();

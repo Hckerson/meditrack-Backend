@@ -79,6 +79,11 @@ export class NotificationService {
     }
   }
 
+  /**
+   * helper function to get doctor details
+   * @param doctorId - ID of the required doctor
+   * @returns - object containing details o fthe requested doctor
+   */
   async fetchDoctorDetails(doctorId: string) {
     try {
       // first find the doctor and retrieve his/ her email
