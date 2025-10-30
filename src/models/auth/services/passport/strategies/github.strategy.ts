@@ -69,7 +69,8 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
           email: email.toLowerCase(),
           emailVerified: verified,
           password: 'github',
-          username: displayName,
+          firstName:"",
+          lastName:"",
           provider: provider,
         },
       });
