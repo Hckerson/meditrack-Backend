@@ -4,6 +4,7 @@ import session from 'express-session';
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { RedisStore } from 'connect-redis';
+import { CustomLogger } from './common/logger/logger.service';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
@@ -35,15 +36,13 @@ const InitializeClients = async () => {
 async function bootstrap() {
   const redisStore = await InitializeClients();
   const app = await NestFactory.create(AppModule, {
-    logger: new ConsoleLogger({
-      logLevels: ['log', 'error', 'warn', 'debug', 'verbose'],
-      prefix: 'Auth API',
-      colors: true,
-    }),
+    bufferLogs: true
   });
 
+  app.useLogger(app.get(CustomLogger))
+
   const config = new DocumentBuilder()
-    .setTitle('Auth API')
+    .setTitle('Meditrack')
     .setDescription('The authentication endpoints')
     .setVersion('1.0')
     .addCookieAuth('sessionId') // optional
@@ -67,9 +66,11 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
 
   const document = SwaggerModule.createDocument(app, config);
 

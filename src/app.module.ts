@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import appConfig from './config/app/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { PrismaModule } from './providers/prisma/prisma.module';
 import { AuthModule } from './models/auth/auth.module';
 import dbConfig from './config/database/configuration';
 import emailConfig from './config/email/configuration';
@@ -13,10 +12,12 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { AdminModule } from './models/admin/admin.module';
 import sessionConfig from './config/session/configuration';
 import { DoctorModule } from './models/doctor/doctor.module';
+import { LoggerModule } from './common/logger/logger.module';
+import { RecordModule } from './models/record/record.module';
 import { PatientModule } from './models/patient/patient.module';
+import { PrismaModule } from './providers/prisma/prisma.module';
 import { NotificationModule } from './models/notification/notification.module';
 import { DepartmentModule } from './models/department/department.module';
-import { RecordModule } from './models/record/record.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { RecordModule } from './models/record/record.module';
     PatientModule,
     NotificationModule,
     DepartmentModule,
+    LoggerModule,
     RecordModule,
   ],
   controllers: [AppController],
