@@ -4,6 +4,9 @@ import session from 'express-session';
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { RedisStore } from 'connect-redis';
+import { parse, stringify } from 'yaml'
+import * as fs from 'node:fs/promises'
+import * as path from 'node:path'
 import { CustomLogger } from './common/logger/logger.service';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -33,8 +36,25 @@ const InitializeClients = async () => {
   return store;
 };
 
+
+const ascertainConfig = async()=>{
+  try {
+    const rootDir = process.cwd()
+    const configDir = path.join(rootDir, 'src', 'config')
+    const exists = fs.access(configDir)
+    const data = ''
+    if(!exists){
+      await fs.writeFile('app.yaml', data)
+    }
+
+  } catch (error) {
+    console.log('Error processing config', error)
+  }
+}
+
 async function bootstrap() {
   const redisStore = await InitializeClients();
+  await ascertainConfig()
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
   });
