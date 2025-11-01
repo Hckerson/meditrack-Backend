@@ -4,11 +4,12 @@ import session from 'express-session';
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { RedisStore } from 'connect-redis';
-import { parse, stringify } from 'yaml'
-import * as fs from 'node:fs/promises'
-import * as path from 'node:path'
+import { parse, stringify } from 'yaml';
+import { configObject } from './config/config';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { CustomLogger } from './common/logger/logger.service';
-import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import {  ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const InitializeClients = async () => {
@@ -36,30 +37,30 @@ const InitializeClients = async () => {
   return store;
 };
 
-
-const ascertainConfig = async()=>{
+const ascertainConfigExists = () => {
   try {
-    const rootDir = process.cwd()
-    const configDir = path.join(rootDir, 'src', 'config')
-    const exists = fs.access(configDir)
-    const data = ''
-    if(!exists){
-      await fs.writeFile('app.yaml', data)
-    }
+    const rootDir = process.cwd();
+    const configDir = path.join(rootDir, 'src', 'config');
+    const file = path.join(configDir, 'app.yaml');
+    const exists = fs.existsSync(file);
+    const data = stringify(configObject, null, 1);
 
+    if (!exists) {
+      fs.writeFileSync(file, data);
+    }
   } catch (error) {
-    console.log('Error processing config', error)
+    console.log('Error processing config', error);
   }
-}
+};
 
 async function bootstrap() {
   const redisStore = await InitializeClients();
-  await ascertainConfig()
+  ascertainConfigExists();
   const app = await NestFactory.create(AppModule, {
-    bufferLogs: true
+    bufferLogs: true,
   });
 
-  app.useLogger(app.get(CustomLogger))
+  app.useLogger(app.get(CustomLogger));
 
   const config = new DocumentBuilder()
     .setTitle('Meditrack')
