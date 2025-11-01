@@ -1,0 +1,187 @@
+🩺 MediTrack – Smart Healthcare Management System
+1. Project Overview
+
+MediTrack is a secure, role-based healthcare management system designed to streamline hospital operations, patient care, and doctor-patient interaction. The platform will handle appointment scheduling, electronic medical records (EMR), prescription management, and billing, while ensuring strict compliance with data protection and audit requirements.
+
+The goal is to deliver a backend API (REST-based) that provides high performance, security, and scalability, with structured data models and process-driven workflows.
+
+2. Scope & Features
+Core Modules
+
+User Management & Roles
+
+Roles: Admin, Doctor, Nurse, Patient.
+
+Role-based access control (RBAC).
+
+Secure authentication with JWT refresh tokens.
+
+Appointments
+
+Book, cancel, reschedule appointments.
+
+Real-time availability of doctors.
+
+Conflict prevention on scheduling.
+
+Electronic Medical Records (EMR)
+
+Secure patient records with version history.
+
+Access permissions (Doctor edit, Patient view only).
+
+Audit logs for every read/write action.
+
+Prescriptions
+
+Doctors issue prescriptions.
+
+Patients access digital prescriptions.
+
+Optional drug-interaction validation.
+
+Billing & Invoicing
+
+Auto-generate invoices after appointments.
+
+Insurance claim placeholder.
+
+Exportable monthly reports.
+
+Audit Logs & Security
+
+Every critical action (login, record access, data edit).
+
+End-to-end encryption for sensitive data.
+
+Optional integration with Cloudflare for DDoS/security shielding.
+
+3. Technical Requirements
+
+Backend Framework: NestJS (TypeScript).
+
+Database: PostgreSQL with Prisma ORM.
+
+Authentication: JWT (access + refresh), bcrypt for password hashing.
+
+Security Enhancements:
+
+Role-based guards.
+
+Rate limiting.
+
+Cloudflare or similar middleware option.
+
+Documentation: Swagger/OpenAPI.
+
+Testing: Unit & Integration (Jest).
+
+Deployment: Dockerized with environment configs.
+
+
+5. Process Flows
+🔹 Appointment Booking (Patient → Doctor)
+
+Patient logs in → navigates to Book Appointment.
+
+System fetches available doctors by specialization.
+
+Patient selects doctor → calendar of free slots is displayed.
+
+Patient chooses slot → system checks for conflicts.
+
+If slot free → temporary hold created (status = PENDING).
+
+Patient confirms → status updated to CONFIRMED.
+
+Doctor notified in dashboard.
+
+🔹 Appointment Cancellation
+
+Patient → cancels → slot freed → doctor notified → AuditLog entry created.
+
+Doctor → cancels → patient notified → slot freed → AuditLog entry created.
+
+🔹 Prescription Issuing
+
+Doctor opens patient record.
+
+Clicks New Prescription.
+
+Adds medication details.
+
+System validates + saves under patient’s record.
+
+Patient notified and can download.
+
+🔹 EMR Access
+
+Doctor: Full read/write.
+
+Nurse: Can add notes, not delete.
+
+Patient: Read-only.
+
+System: Logs all access events.
+
+🔹 Billing & Invoicing
+
+Appointment marked complete.
+
+Invoice auto-generated.
+
+Patient notified in dashboard.
+
+Patient pays (stubbed for now).
+
+Admin can export monthly summary.
+
+🔹 Authentication Flow
+
+User registers or logs in.
+
+Receives Access + Refresh token.
+
+Refresh token stored in DB with expiry.
+
+On expiry → refresh flow triggered.
+
+Audit log tracks all login/logout attempts.
+
+6. Deliverables
+
+Fully functional REST API.
+
+Swagger documentation.
+
+Dockerized environment.
+
+ER diagram of database.
+
+Test coverage reports.
+
+7. Timeline & Milestones
+
+Week 1: DB schema setup, Auth & User module.
+
+Week 2: Appointment & EMR module.
+
+Week 3: Prescriptions & Billing.
+
+Week 4: Audit logs, security, documentation.
+
+Week 5: Testing & Deployment.
+
+8. Budget / Compensation
+
+To be discussed (depends on scope).
+
+9. Success Criteria
+
+All modules functional with 90%+ test coverage.
+
+API secured with RBAC & logging.
+
+Clean, documented, and scalable codebase.
+
+Meets deployment requirements (Docker-ready).
