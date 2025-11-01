@@ -1,10 +1,14 @@
 import * as winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+const { combine, timestamp, label, printf, } = winston.format;
 import * as path from 'path';
 
 const rootDir = process.cwd();
-const configDir = path.join(rootDir, 'src', 'config');
 const outputDir = path.join(rootDir, 'src', 'output', 'logs');
+
+const myFormat = printf(({ level, message, label, timestamp }) => {
+  return `${timestamp} [${label}] ${level}: ${message}`;
+});
 
 const infoTranspost: DailyRotateFile = new DailyRotateFile({
   filename: 'info-%DATE%.log',
@@ -51,7 +55,7 @@ warnTransport.on('error', (err) => {
 export const wLogger = () => {
   return winston.createLogger({
     level: 'error',
-    format: winston.format.json(),
+    format: combine(label({ label: 'Meditrack' }), timestamp(), myFormat),
     transports: [infoTranspost, errorTransport, warnTransport],
   });
 };
