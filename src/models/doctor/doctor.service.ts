@@ -197,4 +197,22 @@ export class DoctorService {
       throw error;
     }
   }
+
+  /**
+   * End appointment after successfully completing session with patient
+   * @param appointmentId - ID of the appointment to be ended
+   */
+  async endAppointment (appointmentId: string){
+    try {
+      await this.prisma.appointment.update({
+        where:{
+          id: appointmentId
+        }, data:{
+          completed: true
+        }
+      })
+    } catch (error) {
+      console.error('Error concluding appointmen', error)
+    }
+  }
 }

@@ -70,6 +70,7 @@ model Appointment {
   doctorId      String
   holdExpiresAt DateTime
   holdId        String
+  completed    Boolean   
   status        Status    @default(FREE)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt()

@@ -99,24 +99,18 @@ export class DoctorController {
     @Param('appointmentId') appointmentId: string,
     @Body() recordDto: CreateRecordDto,
   ) {
-    if (!appointmentId) {
-      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
-    }
-
     return this.doctorService.createRecord(recordDto, appointmentId);
   }
 
   @Roles(Role.DOCTOR)
   @Get(':appointmentId/end')
   async end(
-    @Req() req: Request,
-    @Param() id: string,
+    @Param('appointmentId') id: string,
     @User('id') userId: string,
   ) {
     // extract user from request
-
     if (!userId) throw new UnauthorizedException('Unauthorized action');
 
-    return await this.patientService.cancelAppointment(id, true);
+    return await this.doctorService.endAppointment(id);
   }
 }
