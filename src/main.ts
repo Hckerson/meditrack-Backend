@@ -4,13 +4,13 @@ import session from 'express-session';
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { RedisStore } from 'connect-redis';
-import {stringify } from 'yaml';
+import { stringify } from 'yaml';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { configObject } from './config/config';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CustomLogger } from './common/logger/logger.service';
-import {  ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const InitializeClients = async () => {
@@ -61,9 +61,9 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  app.useStaticAssets(path.join(__dirname, 'public'))
-  app.setBaseViewsDir(path.join(__dirname, 'public', 'views'))
-  app.setViewEngine('ejs')
+  app.useStaticAssets(path.join(__dirname, '..', 'src', 'public'));
+  app.setBaseViewsDir(path.join(__dirname, '..', 'src', 'public', 'views'));
+  app.setViewEngine('ejs');
   app.useLogger(app.get(CustomLogger));
 
   const config = new DocumentBuilder()
@@ -76,8 +76,6 @@ async function bootstrap() {
   if (!process.env.COOKIE_SECRET) {
     throw new Error('cookie secret not set');
   }
-
-  
 
   app.use(
     session({

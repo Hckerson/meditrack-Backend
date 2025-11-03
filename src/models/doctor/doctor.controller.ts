@@ -19,6 +19,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { PatientService } from '../patient/patient.service';
 import { IssuePrescriptionDto } from './dto/issue-prescription.dto';
 import { CreateRecordDto } from './dto/create-record.dto';
+import { User } from 'src/common/decorators/user.decorator';
 
 @Controller('doctor')
 export class DoctorController {
@@ -47,10 +48,12 @@ export class DoctorController {
 
   @Roles(Role.DOCTOR)
   @Get(':appointmentId/cancel')
-  async cancel(@Req() req: Request, @Param() id: string) {
+  async cancel(
+    @Req() req: Request,
+    @Param() id: string,
+    @User('id') userId: string,
+  ) {
     // extract user from request
-    const { user } = req.session;
-    const userId = user?.id;
 
     if (!userId) throw new UnauthorizedException('Unauthorized action');
 
@@ -101,5 +104,19 @@ export class DoctorController {
     }
 
     return this.doctorService.createRecord(recordDto, appointmentId);
+  }
+
+  @Roles(Role.DOCTOR)
+  @Get(':appointmentId/end')
+  async end(
+    @Req() req: Request,
+    @Param() id: string,
+    @User('id') userId: string,
+  ) {
+    // extract user from request
+
+    if (!userId) throw new UnauthorizedException('Unauthorized action');
+
+    return await this.patientService.cancelAppointment(id, true);
   }
 }

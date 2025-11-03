@@ -5,7 +5,7 @@ import { WebService } from './web.service';
 export class WebController {
   constructor(private readonly webService: WebService) {}
 
-  @Get('')
+  @Get()
   @Render('index')
   getIndex(){
     return {message: 'how are you'}
