@@ -18,6 +18,7 @@ import { PatientModule } from './models/patient/patient.module';
 import { PrismaModule } from './providers/prisma/prisma.module';
 import { NotificationModule } from './models/notification/notification.module';
 import { DepartmentModule } from './models/department/department.module';
+import { WebModule } from './web/web.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { DepartmentModule } from './models/department/department.module';
     DepartmentModule,
     LoggerModule,
     RecordModule,
+    WebModule,
   ],
   controllers: [AppController],
   providers: [
