@@ -3,9 +3,7 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { createMedicalRecordDto } from './dto/create-medicalrecord.dto';
 import { BookAppointmentDto } from './dto/create-appointment.dto';
 import { NotificationService } from '../notification/notification.service';
-import { Appointment } from 'generated/prisma';
 import { Hold, Prisma } from 'generated/prisma';
-import { EmailType } from 'src/enums/email.enums';
 
 import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
 

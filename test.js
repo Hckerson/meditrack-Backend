@@ -1,5 +1,6 @@
 const ac = new AbortController();
 
+
 ac.signal.addEventListener(
   'abort',
   () => {
@@ -9,6 +10,8 @@ ac.signal.addEventListener(
 );
 
 
+
+
 setTimeout(() => {
-  ac.abort()
-}, 10000);
+  ac.abort('I just feel like')
+}, 3000);

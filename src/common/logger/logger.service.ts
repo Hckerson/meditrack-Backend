@@ -1,5 +1,5 @@
 import { Injectable, LoggerService, ConsoleLogger } from '@nestjs/common';
-import { wLogger } from 'src/providers/winston/setup';
+import { wLogger } from 'src/services/winston/setup';
 import { Logger } from 'winston';
 
 /**
